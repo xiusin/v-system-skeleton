@@ -10,9 +10,11 @@ mut:
 	fields_typ []int
 	limit      int
 	offset     int
-	order_by   string
+	order_by   []string
 	group_by   string
 	where      string
+
+	debug bool
 }
 
 [params]
@@ -26,8 +28,10 @@ pub mut:
 	items        []T  [json: 'list']
 }
 
-pub fn new_builder() Builder {
-	return Builder{}
+pub fn new_builder(debug ...bool) Builder {
+	return Builder{
+		debug: debug.len > 0 && debug[0]
+	}
 }
 
 pub fn (mut info Builder) model[E]() &Builder {
@@ -63,8 +67,12 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 
 	if !build_count_sql {
 		if info.order_by.len > 0 {
-			query += ' ORDER BY ' + info.order_by
+			query += ' ORDER BY ' + info.order_by.join(',')
 		}
+	}
+
+	if info.debug {
+		println(query)
 	}
 
 	return query
@@ -112,7 +120,21 @@ pub fn (mut info Builder) get_page[T, I](count int, page int, page_size int, ite
 	}
 }
 
-pub fn (mut info Builder) table(table string) Builder {
+pub fn (mut info Builder) order_by(field string) &Builder {
+	info.order_by << field
+
+	return info
+}
+
+pub fn (mut info Builder) order_by_desc(field string) &Builder {
+	if !field.contains(' ') {
+		info.order_by << field + ' DESC'
+	}
+
+	return info
+}
+
+pub fn (mut info Builder) table(table string) &Builder {
 	info.table = table
 	return info
 }

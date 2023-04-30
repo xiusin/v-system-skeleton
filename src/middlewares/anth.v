@@ -46,7 +46,8 @@ pub fn auth(mut ctx very.Context) ! {
 			return error('jwt decode error')
 		}
 
-		ctx.set('user_id', jwt_payload.sub.int())
+		login_user_id := jwt_payload.sub.int()
+		ctx.set('user_id', login_user_id)
 		ctx.next()!
 		return
 	}

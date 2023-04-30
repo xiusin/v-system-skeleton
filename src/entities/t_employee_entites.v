@@ -17,7 +17,7 @@ pub mut:
 	actual_name        string [json: 'actualName']
 	gender             i8
 	phone              string
-	department_id      string [json: 'departmentId']
+	department_id      int    [json: 'departmentId']
 	disabled_flag      i8     [json: 'disabledFlag']
 	deleted_flag       i8     [json: 'deletedFlag']
 	administrator_flag i8     [json: 'administratorFlag']

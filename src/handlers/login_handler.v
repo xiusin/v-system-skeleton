@@ -39,7 +39,7 @@ pub fn get_login_info(mut ctx very.Context) ! {
 	login_user.make_token()
 
 	menus := sql ctx.db {
-		select from entities.Menu
+		select from entities.Menu where visible_flag == 1
 	}!
 
 	// TODO 保存登录日志
