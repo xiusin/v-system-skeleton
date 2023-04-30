@@ -1,0 +1,18 @@
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "loginName": "admin",
+  "password": "123456",
+  "captchaCode": "",
+  "captchaUuid": "",
+  "loginDevice": 1
+}
+
+###
+GET http://localhost:8080/menu/query
+Accept: application/json, text/plain, */*
+
+###
+GET http://localhost:8080/menu/tree
+Accept: application/json, text/plain, */*
