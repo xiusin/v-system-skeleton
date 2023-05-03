@@ -52,8 +52,11 @@ pub mut:
 
 pub struct FeedbackDto {
 pub mut:
-	page_num  int [json: 'pageNum']
-	page_size int [json: 'pageSize']
+	page_num    int    [json: 'pageNum']
+	page_size   int    [json: 'pageSize']
+	search_word string [json: 'searchWord']
+	start_date  string [json: 'startDate']
+	end_date    string [json: 'endDate']
 }
 
 pub struct FeedbackAddDto {
@@ -77,6 +80,11 @@ pub mut:
 
 pub struct ChangeLogDto {
 pub mut:
-	page_num  int [json: 'pageNum']
-	page_size int [json: 'pageSize']
+	page_num          int    [json: 'pageNum']
+	page_size         int    [json: 'pageSize']
+	@type             int
+	keyword           string
+	create_time       string [json: 'createTime']
+	public_date_begin string [json: 'publicDateBegin']
+	public_date_end   string [json: 'publicDateEnd']
 }

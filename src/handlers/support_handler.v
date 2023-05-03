@@ -2,7 +2,6 @@ module handlers
 
 import xiusin.very
 import entities
-import db.sqlite
 import dto
 import time
 import os
@@ -11,19 +10,7 @@ import services
 import crypto.md5
 
 pub fn dict_key_query(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.DictDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder()
-	builder.model[entities.DictKey]()
-	builder.limit(10)
-
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.DictKey](count, query_dto.page_num, query_dto.page_size,
-		users)!
-
+	paginator := services.support_dict_key_query(mut ctx)!
 	resp_success[entities.Paginator[entities.DictKey]](mut ctx, data: paginator)!
 }
 
@@ -61,25 +48,7 @@ pub fn dict_key_edit(mut ctx very.Context) ! {
 }
 
 pub fn dict_value_query(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.DictDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder()
-	builder.model[entities.DictValue]()
-	mut where := []string{}
-
-	if query_dto.dict_key_id > 0 {
-		where << 'id = ${query_dto.dict_key_id}'
-	}
-
-	builder.limit(10)
-
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.DictValue](count, query_dto.page_num, query_dto.page_size,
-		users)!
-
+	paginator := services.support_dict_value_query(mut ctx)!
 	resp_success[entities.Paginator[entities.DictValue]](mut ctx, data: paginator)!
 }
 
@@ -121,24 +90,7 @@ pub fn dict_value_edit(mut ctx very.Context) ! {
 }
 
 pub fn config_query(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.ConfigDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder(true)
-	builder.model[entities.Config]()
-	mut where := []string{}
-
-	if query_dto.config_key.len > 0 {
-		where << "config_key LIKE '%${query_dto.config_key}%'"
-	}
-
-	builder.limit(10)
-	builder.where(where.join(' AND '))
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.Config](count, query_dto.page_num, query_dto.page_size,
-		users)!
+	paginator := services.support_config_query(mut ctx)!
 	resp_success[entities.Paginator[entities.Config]](mut ctx, data: paginator)!
 }
 
@@ -169,42 +121,7 @@ pub fn config_edit(mut ctx very.Context) ! {
 }
 
 pub fn file_query_page(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.FileDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder(true)
-	builder.model[entities.File]()
-	mut where := []string{}
-
-	if query_dto.file_key.len > 0 {
-		where << "file_key like '%${query_dto.file_key}%'"
-	}
-
-	if query_dto.file_name.len > 0 {
-		where << "file_name like '%${query_dto.file_name}%'"
-	}
-
-	if query_dto.creator_name.len > 0 {
-		where << "creator_name like '%${query_dto.creator_name}%'"
-	}
-
-	if query_dto.folder_type > 0 {
-		where << 'folder_type = ${query_dto.folder_type}'
-	}
-
-	if query_dto.create_time_begin.len > 0 {
-		where << "(create_time >= '${query_dto.create_time_begin}' AND create_time <= '${query_dto.create_time_end}')"
-	}
-
-	builder.where(where.join(' AND '))
-	builder.order_by_desc('id')
-	builder.limit(10)
-
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.File](count, query_dto.page_num, query_dto.page_size,
-		users)!
+	paginator := services.support_file_query(mut ctx)!
 	resp_success[entities.Paginator[entities.File]](mut ctx, data: paginator)!
 }
 
@@ -269,11 +186,8 @@ pub fn table_column_get(mut ctx very.Context) ! {
 		column.table_id = tables.first().table_id
 		column.columns = json.decode([]dto.TableColumnItem, tables.first().columns)!
 		column.id = tables.first().id
-
-		resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
-	} else {
-		resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
 	}
+	resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
 }
 
 pub fn table_column_update(mut ctx very.Context) ! {
@@ -305,20 +219,7 @@ pub fn table_column_update(mut ctx very.Context) ! {
 }
 
 pub fn feedback_query(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.FeedbackDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder()
-	builder.model[entities.Feedback]()
-	builder.order_by_desc('id')
-	builder.limit(10)
-
-	count := db.q_int(builder.to_sql(true))
-	feedbacks, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.Feedback](count, query_dto.page_num, query_dto.page_size,
-		feedbacks)!
-
+	paginator := services.support_feedback_query(mut ctx)!
 	resp_success[entities.Paginator[entities.Feedback]](mut ctx, data: paginator)!
 }
 
@@ -371,20 +272,7 @@ pub fn change_log_delete(mut ctx very.Context) ! {
 }
 
 pub fn change_log_query_page(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.ChangeLogDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder(true)
-	builder.model[entities.ChangeLog]()
-	builder.order_by_desc('public_date')
-	builder.limit(query_dto.page_size, (query_dto.page_num - 1) * query_dto.page_size)
-
-	count := db.q_int(builder.to_sql(true))
-	feedbacks, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.ChangeLog](count, query_dto.page_num, query_dto.page_size,
-		feedbacks)!
-
+	paginator := services.support_change_log_query(mut ctx)!
 	resp_success[entities.Paginator[entities.ChangeLog]](mut ctx, data: paginator)!
 }
 

@@ -4,7 +4,7 @@ import math
 import db.sqlite
 
 [heap]
-struct Builder {
+pub struct Builder {
 mut:
 	table      string
 	fields     []string
@@ -86,10 +86,11 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 		if info.order_by.len > 0 {
 			query += ' ORDER BY ' + info.order_by.join(',')
 		}
-	}
-
-	if info.limit > 0 {
-		query += ' LIMIT ${info.offset},${info.limit}'
+		if info.limit > 0 {
+			query += ' LIMIT ${info.offset},${info.limit}'
+		}
+	} else {
+		query += ' LIMIT 1'
 	}
 
 	if info.debug {

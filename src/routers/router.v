@@ -5,7 +5,7 @@ import xiusin.very
 import middlewares
 
 pub fn register_router(mut app very.Application) {
-	app.use(middlewares.request_log, middlewares.auth) //  middlewares.cors,
+	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
 
 	app.post('/login', handlers.login)
 	app.get('/login/getLoginInfo', handlers.get_login_info)

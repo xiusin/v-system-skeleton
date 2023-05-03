@@ -5,6 +5,46 @@ import entities
 import orm
 import dto
 import crypto.md5
+import xiusin.very
+
+pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
+	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
+		query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
+		mut where := []string{}
+		query_role_id := query_dto.role_id
+
+		if query_role_id > 0 {
+			employee_roles := sql ctx.db {
+				select from entities.RoleEmployee where role_id == query_role_id
+			}!
+			mut employee_ids := []string{}
+			for employee_role in employee_roles {
+				employee_ids << employee_role.employee_id.str()
+			}
+			employee_ids << '-1'
+			where << 'id in (${employee_ids.join(',')})'
+		}
+
+		if query_dto.department_id != none && query_dto.department_id? > 0 {
+			where << 'department_id = (${query_dto.department_id?})'
+		}
+
+		if query_dto.keyword.len > 0 {
+			where << '(actual_name like "%${query_dto.keyword}%" or login_name like "%${query_dto.keyword}%" or phone like "%${query_dto.keyword}%")'
+		}
+
+		if query_dto.keywords.len > 0 {
+			where << '(actual_name like "%${query_dto.keywords}%" or login_name like "%${query_dto.keywords}%" or phone like "%${query_dto.keywords}%")'
+		}
+
+		if query_dto.disabled_flag != none {
+			flag := if query_dto.disabled_flag? { 1 } else { 0 }
+			where << 'disabled_flag = ${flag}'
+		}
+
+		return where
+	})!
+}
 
 pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !entities.Employee {
 	employees := sql conn {

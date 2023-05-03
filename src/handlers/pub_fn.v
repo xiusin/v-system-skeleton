@@ -3,6 +3,7 @@ module handlers
 import xiusin.very
 import entities
 import db.sqlite
+import rand
 
 const time_format = 'YYYY-MM-DD HH:mm:ss'
 
@@ -23,6 +24,13 @@ pub mut:
 	page_size  u32
 	pages      u32
 	total      u32
+}
+
+const seed = 'abcdefghijklmnopqrstuvwxyz1234567890_-+=!@#$%^&*()'
+
+[inline]
+pub fn rand_str(strlen int) string {
+	return rand.string_from_set(handlers.seed, strlen)
 }
 
 pub fn resp_success[T](mut ctx very.Context, data Resp[T]) ! {

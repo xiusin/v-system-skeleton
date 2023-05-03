@@ -138,15 +138,12 @@ pub fn update_role_menu(mut ctx very.Context) ! {
 
 pub fn role_update(mut ctx very.Context) ! {
 	role := ctx.body_parse[entities.Role]()!
-
 	roles := sql ctx.db {
 		select from entities.Role where id != role.id && role_name == role.role_name limit 1
 	}!
-
 	if roles.len > 0 {
 		return error('角色名称重复')
 	}
-
 	sql ctx.db {
 		update entities.Role set role_name = role.role_name, remark = role.remark, update_time = time.now().custom_format(time_format)
 		where id == role.id

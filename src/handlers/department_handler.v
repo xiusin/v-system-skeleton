@@ -5,11 +5,12 @@ import entities
 import time
 
 pub fn department_tree_list(mut ctx very.Context) ! {
-	resp_success[[]entities.DepartmentTree](mut ctx,
-		data: entities.build_tree[entities.Department, entities.DepartmentTree](sql ctx.db {
-			select from entities.Department
-		}!, 0)
-	)!
+	departments := sql ctx.db {
+		select from entities.Department
+	}!
+	tree := entities.build_tree[entities.Department, entities.DepartmentTree](departments,
+		0)
+	resp_success[[]entities.DepartmentTree](mut ctx, data: tree)!
 }
 
 pub fn department_list_all(mut ctx very.Context) ! {

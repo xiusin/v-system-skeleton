@@ -5,6 +5,8 @@ import time
 import xiusin.vcolor
 import net.http
 
+// FIXME 托管任何请求
+
 pub fn request_log(mut ctx very.Context) ! {
 	now := time.now()
 

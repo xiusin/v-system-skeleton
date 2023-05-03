@@ -2,71 +2,19 @@ module handlers
 
 import xiusin.very
 import entities
-import db.sqlite
 import dto
 import time
 import crypto.md5
-import rand
 import services
 
 pub fn employee_query(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
-	db := ctx.di.get[sqlite.DB]('db')!
-	mut builder := entities.new_builder(true)
-	builder.model[entities.Employee]()
-
-	mut where := []string{}
-	mut query_role_id := query_dto.role_id
-	if query_role_id < 1 {
-		query_role_id = ctx.param('role_id').int()
-	}
-	if query_role_id > 0 {
-		employee_roles := sql ctx.db {
-			select from entities.RoleEmployee where role_id == query_role_id
-		}!
-		mut employee_ids := []string{}
-		for employee_role in employee_roles {
-			employee_ids << employee_role.employee_id.str()
-		}
-		employee_ids << '-1'
-		where << 'id in (${employee_ids.join(',')})'
-	}
-
-	if query_dto.department_id != none {
-		if query_dto.department_id? > 0 {
-			where << 'department_id = (${query_dto.department_id?})'
-		}
-	}
-
-	if query_dto.keyword.len > 0 {
-		where << '(actual_name like "%${query_dto.keyword}%" or login_name like "%${query_dto.keyword}%" or phone like "%${query_dto.keyword}%")'
-	}
-
-	if query_dto.keywords.len > 0 {
-		where << '(actual_name like "%${query_dto.keywords}%" or login_name like "%${query_dto.keywords}%" or phone like "%${query_dto.keywords}%")'
-	}
-
-	if query_dto.disabled_flag != none {
-		flag := if query_dto.disabled_flag? { 1 } else { 0 }
-		where << 'disabled_flag = ${flag}'
-	}
-
-	builder.where(where.join(' AND '))
-	builder.limit(10)
-
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
-
-	paginator := builder.get_page[entities.Employee](count, query_dto.page_num, query_dto.page_size,
-		users)!
-
+	paginator := services.employee_query(mut ctx)!
 	resp_success[entities.Paginator[entities.Employee]](mut ctx, data: paginator)!
 }
 
 pub fn employee_reset_password(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	password := rand.string_from_set('abcdefghijklmnopqrstuvwxyz1234567890_-+=!@#$%^&*()',
-		10)
+	password := rand_str(8)
 	sql ctx.db {
 		update entities.Employee set login_pwd = md5.hexhash(password), update_time = time.now().custom_format(time_format)
 		where id == id
@@ -134,9 +82,6 @@ pub fn employee_add(mut ctx very.Context) ! {
 	if employees.len == 0 {
 		return error('新增用户失败')
 	}
-
-	employee_id := employees.first().id
-
 	resp_success[string](mut ctx, data: password)!
 }
 

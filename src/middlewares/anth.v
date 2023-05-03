@@ -30,11 +30,13 @@ pub fn auth(mut ctx very.Context) ! {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
 		// // todo return error auto stop
 		if token.len == 0 {
+			println('token.len  = 0')
 			ctx.stop()
 			ctx.set_status(.forbidden)
 			return error('miss token')
 		}
 		if !auth_verify(token) {
+			println('token.no_valid  = 0')
 			ctx.stop()
 			ctx.set_status(.forbidden)
 			return error('no valid token')
