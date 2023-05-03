@@ -89,7 +89,7 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 	}
 
 	if info.limit > 0 {
-		query += ' LIMIT ${info.limit}'
+		query += ' LIMIT ${info.offset},${info.limit}'
 	}
 
 	if info.debug {

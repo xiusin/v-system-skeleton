@@ -5,10 +5,14 @@ import xiusin.very
 import middlewares
 
 pub fn register_router(mut app very.Application) {
-	app.use(middlewares.request_log, middlewares.cors, middlewares.auth)
+	app.use(middlewares.request_log, middlewares.auth) //  middlewares.cors,
 
 	app.post('/login', handlers.login)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
+	app.post('/changeLog/add', handlers.change_log_add)
+	app.post('/changeLog/update', handlers.change_log_update)
+	app.get('/changeLog/delete/:id', handlers.change_log_delete)
+	app.post('/changeLog/queryPage', handlers.change_log_query_page)
 
 	mut role_api := app.group('/role')
 	{
@@ -68,6 +72,7 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/tableColumn/update', handlers.table_column_update)
 		support_api.get('/tableColumn/getColumns/:table_id', handlers.table_column_get)
 		support_api.get('/helpDoc/queryHelpDocByRelationId/:id', handlers.help_doc_query)
-		support_api.post('/feedback/query', handlers.help_doc_query)
+		support_api.post('/feedback/query', handlers.feedback_query)
+		support_api.post('/feedback/add', handlers.feedback_add)
 	}
 }

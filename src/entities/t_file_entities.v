@@ -12,6 +12,7 @@ pub mut:
 	creator_id        int    [json: 'creatorId']
 	creator_user_type int    [json: 'creatorUserType']
 	creator_name      string [json: 'creatorName']
+	md5               string
 	update_time       string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
 	create_time       string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 }

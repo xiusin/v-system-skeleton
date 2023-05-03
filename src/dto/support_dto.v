@@ -49,3 +49,34 @@ pub mut:
 	table_id  int               [json: 'tableId']
 	columns   []TableColumnItem
 }
+
+pub struct FeedbackDto {
+pub mut:
+	page_num  int [json: 'pageNum']
+	page_size int [json: 'pageSize']
+}
+
+pub struct FeedbackAddDto {
+pub mut:
+	feedback_content    string                   [json: 'feedbackContent']
+	feedback_attachment []FeedbackAttachmentItem [json: 'feedbackAttachment']
+}
+
+pub struct FeedbackAttachmentItem {
+pub mut:
+	file_id   int    [json: 'fileId']
+	file_key  string [json: 'fileKey']
+	file_name string [json: 'fileName']
+	file_size int    [json: 'fileSize']
+	file_type string [json: 'fileType']
+	file_url  string [json: 'fileUrl']
+	name      string [json: 'name']
+	uid       string [json: 'uid']
+	url       string [json: 'url']
+}
+
+pub struct ChangeLogDto {
+pub mut:
+	page_num  int [json: 'pageNum']
+	page_size int [json: 'pageSize']
+}

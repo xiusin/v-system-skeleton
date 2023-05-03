@@ -25,7 +25,8 @@ pub struct JwtPayload {
 }
 
 pub fn auth(mut ctx very.Context) ! {
-	if !ctx.path().ends_with('/login') {
+	if !ctx.path().ends_with('/login') && !ctx.path().starts_with('/uploads')
+		&& !ctx.path().starts_with('/manages') {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
 		// // todo return error auto stop
 		if token.len == 0 {

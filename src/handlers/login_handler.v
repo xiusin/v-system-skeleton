@@ -20,7 +20,7 @@ pub fn login(mut ctx very.Context) ! {
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
 
-	login_user := services.employee_login_info(ctx.db, user_id)!
+	login_user := services.employee_info(ctx.db, user_id, true)!
 	menus := sql ctx.db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!

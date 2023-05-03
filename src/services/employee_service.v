@@ -6,18 +6,20 @@ import orm
 import dto
 import crypto.md5
 
-pub fn employee_login_info(conn orm.Connection, login_id int) !entities.Employee {
-	user := sql conn {
+pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !entities.Employee {
+	employees := sql conn {
 		select from entities.Employee where id == login_id limit 1
 	}!
-	if user.len == 0 {
+	if employees.len == 0 {
 		return error('no user')
 	}
-	mut login_user := user.first()
-	login_user.make_token()
-	login_user.login_pwd = ''
+	mut employee := employees.first()
+	if with_token.len > 0 && with_token[0] {
+		employee.make_token()
+	}
+	employee.login_pwd = ''
 
-	return login_user
+	return employee
 }
 
 pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
@@ -25,16 +27,13 @@ pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entiti
 	user := sql conn {
 		select from entities.Employee where login_name == login_dto.username && login_pwd == password limit 1
 	}!
-
 	if user.len == 0 {
-		return error('no user')
+		return error('不存在用户或密码错误')
 	}
 	mut login_user := user.first()
-
-	if login_user.disabled_flag {
+	if login_user.disabled_flag == 1 {
 		return error('用户已被禁用')
 	}
-
 	login_user.login_pwd = ''
 	login_user.make_token()
 

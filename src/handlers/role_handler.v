@@ -155,7 +155,10 @@ pub fn role_update(mut ctx very.Context) ! {
 }
 
 pub fn role_add(mut ctx very.Context) ! {
-	role := ctx.body_parse[entities.Role]()!
+	mut role := ctx.body_parse[entities.Role]()!
+	role.create_time = time.now().custom_format(time_format)
+	role.update_time = time.now().custom_format(time_format)
+
 	roles := sql ctx.db {
 		select from entities.Role where role_name == role.role_name limit 1
 	}!

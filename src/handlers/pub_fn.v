@@ -39,12 +39,22 @@ pub fn resp_error[T](mut ctx very.Context, data Resp[T]) ! {
 	ctx.json[Resp[T]](resp)
 }
 
-pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) !bool {
+pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
+	if wheres.len == 0 {
+		return error('check_entity_exists: 请确定最少包含一个条件')
+	}
+
 	db := ctx.di.get[sqlite.DB]('db')!
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	builder.limit(1)
-	builder.where(wheres.join(' AND '))
-	count, _ := db.q_int(builder.to_sql(true))
-	return count > 0
+
+	wheres_ := wheres.map(fn (it string) string {
+		return '(${it})'
+	})
+
+	builder.where(wheres_.join(' AND '))
+	if db.q_int(builder.to_sql(true)) > 0 { // TODO SQL拼错时无异常!
+		return error('已经存在相同的数据')
+	}
 }
