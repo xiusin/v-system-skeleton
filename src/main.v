@@ -22,7 +22,6 @@ fn main() {
 
 	app.use_db(mut db)
 	app.di.set(di.Service{ name: 'db', instance: &db })
-	// app.di.set(di.Service{ name: 'orm', instance: orm.Connection(db) })
 
 	app.statics('/uploads', 'uploads')
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')

@@ -1,7 +1,7 @@
 Module {
-	name: 'vcms'
-	description: ''
-	version: ''
+	name: 'skeleton'
+	description: 'A management system skeleton implemented by V language and Vue+Ts'
+	version: '0.0.1'
 	license: ''
 	dependencies: []
 }
