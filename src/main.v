@@ -19,8 +19,11 @@ fn main() {
 	}
 
 	mut db := config.get_db()!
+
 	app.use_db(mut db)
 	app.di.set(di.Service{ name: 'db', instance: &db })
+	// app.di.set(di.Service{ name: 'orm', instance: orm.Connection(db) })
+
 	routers.register_router(mut app)
 	app.run()
 }

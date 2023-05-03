@@ -4,8 +4,8 @@ import entities
 
 pub struct LoginRequestDto {
 pub mut:
-	username string
-	password string
+	username string [required]
+	password string [required]
 }
 
 pub struct LoginResponseDto {

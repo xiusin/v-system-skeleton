@@ -5,7 +5,7 @@ import entities
 
 pub fn menu_query(mut ctx very.Context) ! {
 	menus := sql ctx.db {
-		select from entities.Menu
+		select from entities.Menu order by sort desc
 	}!
 	resp_success[[]entities.Menu](mut ctx, data: menus)!
 }
@@ -18,18 +18,14 @@ pub fn menu_add(mut ctx very.Context) ! {
 	sql ctx.db {
 		insert menu into entities.Menu
 	}!
-
 	last_id := ctx.db.last_id()
-
 	new_menu := sql ctx.db {
 		select from entities.Menu where id == last_id limit 1
 	}!
-
 	resp_success[entities.Menu](mut ctx, data: new_menu.first())!
 }
 
 pub fn menu_batch_delete(mut ctx very.Context) ! {
-	// TODO 等待兼容 in
 	for menu_id in ctx.query('menuIdList').split(',') {
 		if menu_id.int() == 0 {
 			continue

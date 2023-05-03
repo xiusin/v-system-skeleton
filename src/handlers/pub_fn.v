@@ -1,6 +1,8 @@
 module handlers
 
 import xiusin.very
+import entities
+import db.sqlite
 
 const time_format = 'YYYY-MM-DD HH:mm:ss'
 
@@ -35,4 +37,14 @@ pub fn resp_error[T](mut ctx very.Context, data Resp[T]) ! {
 	resp.ok = false
 	resp.msg = 'failed'
 	ctx.json[Resp[T]](resp)
+}
+
+pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) !bool {
+	db := ctx.di.get[sqlite.DB]('db')!
+	mut builder := entities.new_builder(true)
+	builder.model[T]()
+	builder.limit(1)
+	builder.where(wheres.join(' AND '))
+	count, _ := db.q_int(builder.to_sql(true))
+	return count > 0
 }

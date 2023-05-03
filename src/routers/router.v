@@ -16,6 +16,14 @@ pub fn register_router(mut app very.Application) {
 		role_api.get('/menu/getRoleSelectedMenu/:id', handlers.role_get_role_selected_menu)
 		role_api.get('/dataScope/getRoleDataScopeList/:id', handlers.get_role_data_scope_list)
 		role_api.post('/employee/queryEmployee', handlers.role_query_employee)
+		role_api.get('/employee/getAllEmployeeByRoleId/:id', handlers.role_query_employee)
+		role_api.get('/employee/removeEmployee', handlers.role_remove_employee)
+		role_api.post('/employee/batchRemoveRoleEmployee', handlers.role_batch_remove_employee)
+		role_api.post('/employee/batchAddRoleEmployee', handlers.role_batch_add_employee)
+		role_api.post('/menu/updateRoleMenu', handlers.update_role_menu)
+		role_api.get('/delete/:id', handlers.role_delete)
+		role_api.post('/update', handlers.role_update)
+		role_api.post('/add', handlers.role_add)
 	}
 	mut department_api := app.group('/department')
 	{
@@ -53,7 +61,13 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/dict/value/add', handlers.dict_value_add)
 		support_api.post('/dict/value/delete', handlers.dict_value_delete)
 		support_api.post('/config/query', handlers.config_query)
+		support_api.post('/config/add', handlers.config_add)
+		support_api.post('/config/update', handlers.config_edit)
 		support_api.post('/file/upload', handlers.file_upload)
 		support_api.post('/file/queryPage', handlers.file_query_page)
+		support_api.post('/tableColumn/update', handlers.table_column_update)
+		support_api.get('/tableColumn/getColumns/:table_id', handlers.table_column_get)
+		support_api.get('/helpDoc/queryHelpDocByRelationId/:id', handlers.help_doc_query)
+		support_api.post('/feedback/query', handlers.help_doc_query)
 	}
 }

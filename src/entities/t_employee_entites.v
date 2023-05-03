@@ -1,12 +1,12 @@
 module entities
 
+import middlewares
 import encoding.base64
-import json
 import time
 import crypto.sha256
 import crypto.hmac
+import json
 import config
-import middlewares
 
 [table: 't_employee']
 pub struct Employee {
@@ -27,11 +27,11 @@ pub mut:
 	token              string [build: 'skip']
 }
 
-pub fn (mut user Employee) make_token() {
+pub fn (mut employee Employee) make_token() {
 	jwt_header := middlewares.JwtHeader{'HS256', 'JWT'}
 	jwt_payload := middlewares.JwtPayload{
-		sub: '${user.id}'
-		name: '${user.login_name}'
+		sub: '${employee.id}'
+		name: '${employee.login_name}'
 		iat: time.now()
 	}
 
@@ -40,5 +40,5 @@ pub fn (mut user Employee) make_token() {
 	signature := base64.url_encode(hmac.new(config.get_secret_key().bytes(), '${header}.${payload}'.bytes(),
 		sha256.sum, sha256.block_size).bytestr().bytes())
 
-	user.token = '${header}.${payload}.${signature}'
+	employee.token = '${header}.${payload}.${signature}'
 }

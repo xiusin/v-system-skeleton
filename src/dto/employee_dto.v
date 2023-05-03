@@ -8,6 +8,7 @@ pub mut:
 	page_size     int    [json: 'pageSize']
 	role_id       int    [json: 'roleId']
 	keyword       string [json: 'keyword']
+	keywords      string [json: 'keywords']
 }
 
 pub struct EmployeeUpdatePasswordDto {

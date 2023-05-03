@@ -1,6 +1,7 @@
 module entities
 
 import math
+import db.sqlite
 
 [heap]
 struct Builder {
@@ -38,6 +39,22 @@ pub fn (mut info Builder) model[E]() &Builder {
 	return info.get_entity_fields[E]()
 }
 
+pub fn (mut info Builder) column(columns ...string) &Builder {
+	if columns.len == 0 {
+		return info
+	}
+	info.fields = []
+	for column in columns {
+		if !column.starts_with(info.table + '.') {
+			info.fields << info.table + '.' + column
+		} else {
+			info.fields << column
+		}
+	}
+
+	return info
+}
+
 pub fn (mut info Builder) where(where string) &Builder {
 	info.where = where
 
@@ -59,7 +76,7 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 	} else {
 		'COUNT(*) AS total'
 	}
-	mut query := 'SELECT ${select_field} from ${info.table}'
+	mut query := 'SELECT ${select_field} FROM ${info.table}'
 
 	if info.where.len > 0 {
 		query += ' WHERE ${info.where}'
@@ -71,6 +88,10 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 		}
 	}
 
+	if info.limit > 0 {
+		query += ' LIMIT ${info.limit}'
+	}
+
 	if info.debug {
 		println(query)
 	}
@@ -78,12 +99,9 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 	return query
 }
 
-pub fn (mut info Builder) get_page[T, I](count int, page int, page_size int, items []I) !Paginator[T] {
-	if page_size == 0 || page == 0 {
-		return error('page or page_size is zero')
-	}
-	mut collection := []T{} // 遍历数据
-	for it in items { // 遍历Sql.Row
+pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
+	mut collection := []T{}
+	for it in items {
 		item := T{}
 		for idx, sel_field in info.fields {
 			$for field in T.fields {
@@ -104,9 +122,18 @@ pub fn (mut info Builder) get_page[T, I](count int, page int, page_size int, ite
 				}
 			}
 		}
-
 		collection << item
 	}
+
+	return collection
+}
+
+pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []sqlite.Row) !Paginator[T] {
+	if page_size == 0 || page == 0 {
+		return error('page or page_size is zero')
+	}
+
+	collection := info.row_to_collection[T](items)
 
 	pages := math.ceil(f64(count) / f64(page_size))
 

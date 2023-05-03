@@ -6,6 +6,7 @@ import db.sqlite
 import dto
 import time
 import os
+import json
 
 pub fn dict_key_query(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.DictDto]()!
@@ -19,8 +20,8 @@ pub fn dict_key_query(mut ctx very.Context) ! {
 	count := db.q_int(builder.to_sql(true))
 	users, _ := db.exec(builder.to_sql())
 
-	paginator := builder.get_page[entities.DictKey, sqlite.Row](count, query_dto.page_num,
-		query_dto.page_size, users)!
+	paginator := builder.get_page[entities.DictKey](count, query_dto.page_num, query_dto.page_size,
+		users)!
 
 	resp_success[entities.Paginator[entities.DictKey]](mut ctx, data: paginator)!
 }
@@ -69,8 +70,8 @@ pub fn dict_value_query(mut ctx very.Context) ! {
 	count := db.q_int(builder.to_sql(true))
 	users, _ := db.exec(builder.to_sql())
 
-	paginator := builder.get_page[entities.DictValue, sqlite.Row](count, query_dto.page_num,
-		query_dto.page_size, users)!
+	paginator := builder.get_page[entities.DictValue](count, query_dto.page_num, query_dto.page_size,
+		users)!
 
 	resp_success[entities.Paginator[entities.DictValue]](mut ctx, data: paginator)!
 }
@@ -107,22 +108,40 @@ pub fn config_query(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.ConfigDto]()!
 	db := ctx.di.get[sqlite.DB]('db')!
 
-	mut builder := entities.new_builder()
+	mut builder := entities.new_builder(true)
 	builder.model[entities.Config]()
 	mut where := []string{}
 
 	if query_dto.config_key.len > 0 {
-		where << "config_key = '${query_dto.config_key}'"
+		where << "config_key LIKE '%${query_dto.config_key}%'"
 	}
 
 	builder.limit(10)
-
+	builder.where(where.join(' AND '))
 	count := db.q_int(builder.to_sql(true))
 	users, _ := db.exec(builder.to_sql())
 
-	paginator := builder.get_page[entities.Config, sqlite.Row](count, query_dto.page_num,
-		query_dto.page_size, users)!
+	paginator := builder.get_page[entities.Config](count, query_dto.page_num, query_dto.page_size,
+		users)!
 	resp_success[entities.Paginator[entities.Config]](mut ctx, data: paginator)!
+}
+
+pub fn config_add(mut ctx very.Context) ! {
+	value := ctx.body_parse[entities.Config]()!
+	sql ctx.db {
+		insert value into entities.Config
+	}!
+	resp_success[string](mut ctx, data: '')!
+}
+
+pub fn config_edit(mut ctx very.Context) ! {
+	value := ctx.body_parse[entities.Config]()!
+	sql ctx.db {
+		update entities.Config set config_key = value.config_key, config_name = value.config_name,
+		remark = value.remark, config_value = value.config_value, update_time = time.now().custom_format(time_format)
+		where id == value.id
+	}!
+	resp_success[string](mut ctx, data: '')!
 }
 
 pub fn file_query_page(mut ctx very.Context) ! {
@@ -160,8 +179,8 @@ pub fn file_query_page(mut ctx very.Context) ! {
 	count := db.q_int(builder.to_sql(true))
 	users, _ := db.exec(builder.to_sql())
 
-	paginator := builder.get_page[entities.File, sqlite.Row](count, query_dto.page_num,
-		query_dto.page_size, users)!
+	paginator := builder.get_page[entities.File](count, query_dto.page_num, query_dto.page_size,
+		users)!
 	resp_success[entities.Paginator[entities.File]](mut ctx, data: paginator)!
 }
 
@@ -205,4 +224,54 @@ pub fn file_upload(mut ctx very.Context) ! {
 	file.id = ctx.db.last_id()
 
 	resp_success[entities.File](mut ctx, data: file)!
+}
+
+pub fn table_column_get(mut ctx very.Context) ! {
+	table_id := ctx.param('table_id').int()
+	tables := sql ctx.db {
+		select from entities.TableColumn where table_id == table_id limit 1
+	}!
+
+	mut column := dto.TableColumnGetColumnsResponseDto{}
+
+	if tables.len > 0 {
+		column.table_id = tables.first().table_id
+		column.columns = json.decode([]dto.TableColumnItem, tables.first().columns)!
+		column.id = tables.first().id
+
+		resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
+	} else {
+		resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
+	}
+}
+
+pub fn table_column_update(mut ctx very.Context) ! {
+	table_column_dto := ctx.body_parse[dto.TableColumnDto]()!
+	tables := sql ctx.db {
+		select from entities.TableColumn where table_id == table_column_dto.table_id limit 1
+	}!
+	column := json.encode(table_column_dto.column_list)
+	if tables.len == 0 {
+		mut table := entities.TableColumn{
+			user_id: ctx.value('user_id')! as int
+			user_type: 0
+			table_id: table_column_dto.table_id
+			columns: column
+			update_time: time.now().custom_format(time_format)
+			create_time: time.now().custom_format(time_format)
+		}
+		sql ctx.db {
+			insert table into entities.TableColumn
+		}!
+	} else {
+		sql ctx.db {
+			update entities.TableColumn set columns = column, update_time = time.now().custom_format(time_format)
+			where table_id == table_column_dto.table_id
+		}!
+	}
+
+	resp_success[string](mut ctx, data: '')!
+}
+
+pub fn help_doc_query(mut ctx very.Context) ! {
 }

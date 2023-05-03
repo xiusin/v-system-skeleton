@@ -7,37 +7,43 @@ import dto
 import time
 import crypto.md5
 import rand
+import services
 
 pub fn employee_query(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
 	db := ctx.di.get[sqlite.DB]('db')!
-
-	mut builder := entities.new_builder()
-
+	mut builder := entities.new_builder(true)
 	builder.model[entities.Employee]()
 
 	mut where := []string{}
-
-	if query_dto.role_id > 0 {
+	mut query_role_id := query_dto.role_id
+	if query_role_id < 1 {
+		query_role_id = ctx.param('role_id').int()
+	}
+	if query_role_id > 0 {
 		employee_roles := sql ctx.db {
-			select from entities.RoleEmployee where role_id == query_dto.role_id
+			select from entities.RoleEmployee where role_id == query_role_id
 		}!
 		mut employee_ids := []string{}
 		for employee_role in employee_roles {
 			employee_ids << employee_role.employee_id.str()
 		}
-
+		employee_ids << '-1'
 		where << 'id in (${employee_ids.join(',')})'
 	}
 
-	if query_dto.department_id != none { //  &&
+	if query_dto.department_id != none {
 		if query_dto.department_id? > 0 {
-			where << 'department_id = (${query_dto.department_id})'
+			where << 'department_id = (${query_dto.department_id?})'
 		}
 	}
 
-	if query_dto.keyword.len > 0 { // sql注入危险
+	if query_dto.keyword.len > 0 {
 		where << '(actual_name like "%${query_dto.keyword}%" or login_name like "%${query_dto.keyword}%" or phone like "%${query_dto.keyword}%")'
+	}
+
+	if query_dto.keywords.len > 0 {
+		where << '(actual_name like "%${query_dto.keywords}%" or login_name like "%${query_dto.keywords}%" or phone like "%${query_dto.keywords}%")'
 	}
 
 	if query_dto.disabled_flag != none {
@@ -51,8 +57,8 @@ pub fn employee_query(mut ctx very.Context) ! {
 	count := db.q_int(builder.to_sql(true))
 	users, _ := db.exec(builder.to_sql())
 
-	paginator := builder.get_page[entities.Employee, sqlite.Row](count, query_dto.page_num,
-		query_dto.page_size, users)!
+	paginator := builder.get_page[entities.Employee](count, query_dto.page_num, query_dto.page_size,
+		users)!
 
 	resp_success[entities.Paginator[entities.Employee]](mut ctx, data: paginator)!
 }
@@ -118,14 +124,20 @@ pub fn employee_query_all(mut ctx very.Context) ! {
 
 pub fn employee_add(mut ctx very.Context) ! {
 	mut employee := ctx.body_parse[entities.Employee]()!
-	employee.login_pwd = md5.hexhash('123456')
-	employee.update_time = time.now().custom_format(time_format)
-	employee.create_time = employee.update_time
+	password := services.employee_add(ctx.db, mut employee)!
 
-	sql ctx.db {
-		insert employee into entities.Employee
+	// 查询新账号ID
+	employees := sql ctx.db {
+		select from entities.Employee where login_name == employee.login_name limit 1
 	}!
-	resp_success[string](mut ctx, data: '123456')!
+	// check_entity_exists[entities.Employee](mut ctx, 'login_name = "${employee.login_name}"')
+	if employees.len == 0 {
+		return error('新增用户失败')
+	}
+
+	employee_id := employees.first().id
+
+	resp_success[string](mut ctx, data: password)!
 }
 
 pub fn employee_delete(mut ctx very.Context) ! {
@@ -133,6 +145,7 @@ pub fn employee_delete(mut ctx very.Context) ! {
 	for id in ids {
 		sql ctx.db {
 			delete from entities.Employee where id == id
+			delete from entities.RoleEmployee where employee_id == id
 		}!
 	}
 	resp_success[string](mut ctx, data: '')!

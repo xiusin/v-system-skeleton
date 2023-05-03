@@ -3,22 +3,14 @@ module handlers
 import xiusin.very
 import dto
 import entities
+import services
 
-['/login'; post]
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
-	user := sql ctx.db {
-		select from entities.Employee where login_name == login_dto.username limit 1
-	}!
-
-	if user.len == 0 {
-		return error('no user')
-	}
-	mut login_user := user.first()
-	login_user.make_token()
+	login_user := services.employee_auth(ctx.db, login_dto)!
 
 	menus := sql ctx.db {
-		select from entities.Menu
+		select from entities.Menu where visible_flag == 1 order by sort
 	}!
 	resp_success[dto.LoginResponseDto](mut ctx,
 		data: dto.new_login_response_dto[entities.Employee](login_user, menus)
@@ -28,21 +20,11 @@ pub fn login(mut ctx very.Context) ! {
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
 
-	user := sql ctx.db {
-		select from entities.Employee where id == user_id limit 1
-	}!
-
-	if user.len == 0 {
-		return error('no user')
-	}
-	mut login_user := user.first()
-	login_user.make_token()
-
+	login_user := services.employee_login_info(ctx.db, user_id)!
 	menus := sql ctx.db {
-		select from entities.Menu where visible_flag == 1
+		select from entities.Menu where visible_flag == 1 order by sort
 	}!
 
-	// TODO 保存登录日志
 	resp_success[dto.LoginResponseDto](mut ctx,
 		data: dto.new_login_response_dto[entities.Employee](login_user, menus)
 	)!
