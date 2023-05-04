@@ -23,3 +23,5 @@ bin/
 *.db
 *.js
 /uploads/
+*.log
+*vue3

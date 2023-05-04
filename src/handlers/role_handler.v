@@ -170,13 +170,11 @@ pub fn role_add(mut ctx very.Context) ! {
 
 pub fn role_delete(mut ctx very.Context) ! {
 	role_id := ctx.param('id').int()
-
 	sql ctx.db {
 		delete from entities.RoleMenu where role_id == role_id
 		delete from entities.RoleEmployee where role_id == role_id
 		delete from entities.RoleDataScope where role_id == role_id
 		delete from entities.Role where id == role_id
 	}!
-
 	resp_success[string](mut ctx, data: '')!
 }

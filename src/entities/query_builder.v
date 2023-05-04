@@ -168,13 +168,13 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 // get_entity_fields 获取table 字段
-fn (mut info Builder) get_entity_fields[E]() &Builder {
-	$for attr in E.attributes {
+fn (mut info Builder) get_entity_fields[T]() &Builder {
+	$for attr in T.attributes {
 		if attr.name == 'table' && attr.has_arg && attr.arg.len != 0 {
 			info.table = attr.arg
 		}
 	}
-	$for field in E.fields {
+	$for field in T.fields {
 		if field.is_pub && !field.attrs.contains('build: skip') {
 			if field.attrs.len == 0 {
 				info.fields << info.table + '.' + field.name
