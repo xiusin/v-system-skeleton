@@ -307,7 +307,7 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 }
 
 
-// code_generator_query_table_list 查询数据表列表
+// code_generator_query_table_list 查询数据表列表  sqlite or mysql
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 
 }
