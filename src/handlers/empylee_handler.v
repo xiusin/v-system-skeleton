@@ -40,7 +40,6 @@ pub fn employee_update_disabled(mut ctx very.Context) ! {
 
 pub fn employee_update_password(mut ctx very.Context) ! {
 	update_password := ctx.body_parse[dto.EmployeeUpdatePasswordDto]()!
-
 	if update_password.confirm_pwd != update_password.new_password {
 		return error('new password error')
 	}

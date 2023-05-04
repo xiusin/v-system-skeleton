@@ -23,7 +23,6 @@ pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
 		role_id: role_id
 	}
 
-	// 获取选中菜单
 	role_menus := sql ctx.db {
 		select from entities.RoleMenu where role_id == role_id
 	}!

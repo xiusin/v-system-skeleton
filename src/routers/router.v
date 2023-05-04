@@ -72,6 +72,9 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/tableColumn/update', handlers.table_column_update)
 		support_api.get('/tableColumn/getColumns/:table_id', handlers.table_column_get)
 		support_api.get('/helpDoc/queryHelpDocByRelationId/:id', handlers.help_doc_query)
+		support_api.post('/helpDoc/helpDocCatalog/update', handlers.help_doc_catalog_update)
+		support_api.post('/helpDoc/helpDocCatalog/add', handlers.help_doc_catalog_add)
+		support_api.get('/helpDoc/helpDocCatalog/getAll', handlers.help_doc_catalog_get_all)
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}
