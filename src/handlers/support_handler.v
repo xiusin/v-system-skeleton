@@ -8,6 +8,8 @@ import os
 import json
 import services
 import crypto.md5
+import math
+import db.sqlite
 
 pub fn dict_key_query(mut ctx very.Context) ! {
 	paginator := services.support_dict_key_query(mut ctx)!
@@ -297,17 +299,32 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 
 // code_generator_query_table_list 查询数据表列表  sqlite or mysql
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
-	sql := "select * from sqlite_master where type = 'table' and name != 'sqlite_sequence' order by name"
+	query_dto := ctx.body_parse[dto.CodeGeneratorTableListDto]()!
+	offset := query_dto.page_size * (query_dto.page_num - 1)
+	sql := "select * from sqlite_master where type = 'table' and name != 'sqlite_sequence' order by name limit ${offset},${query_dto.page_size}"
+	count_sql := "select count(*) AS total from sqlite_master where type = 'table' and name != 'sqlite_sequence'"
+
 	mut builder := entities.new_builder(true)
 	tables := builder.query_raw[entities.SqliteMaster](mut ctx, sql)!
+	db := &sqlite.DB(ctx.di.get[sqlite.DB]('db')!)
+	count := db.q_int(count_sql)
 
-	mut cgct := []entities.CodeGeneratorConfigTable{len: tables.len}
+	mut cgct := []entities.CodeGeneratorConfigTable{cap: tables.len}
 	for table in tables {
 		cgct << entities.CodeGeneratorConfigTable{
 			table_name: table.tbl_name
 		}
 	}
-	resp_success[[]entities.CodeGeneratorConfigTable](mut ctx, data: cgct)!
+
+	paginator := entities.Paginator[entities.CodeGeneratorConfigTable]{
+		total: count
+		pages: int(math.ceil(f64(count) / f64(query_dto.page_size)))
+		current_page: query_dto.page_num
+		page_size: query_dto.page_size
+		items: cgct
+	}
+
+	resp_success[entities.Paginator[entities.CodeGeneratorConfigTable]](mut ctx, data: paginator)!
 }
 
 pub fn code_generator_query_table_column(mut ctx very.Context) ! {
@@ -315,6 +332,59 @@ pub fn code_generator_query_table_column(mut ctx very.Context) ! {
 	mut builder := entities.new_builder(true)
 	columns := builder.query_raw[entities.CodeGeneratorConfigColumnSqlite](mut ctx, 'PRAGMA table_info(${tbl_name})')!
 	resp_success[[]entities.CodeGeneratorConfigColumnSqlite](mut ctx, data: columns)!
+}
+
+pub fn code_generator_table_get_config(mut ctx very.Context) ! {
+	tbl_name := ctx.param('tbl_name')
+	mut cfg_arr := sql ctx.db {
+		select from entities.CodeGeneratorConfig where table_name == tbl_name limit 1
+	}!
+
+	if cfg_arr.len == 0 {
+		cfg_arr << entities.CodeGeneratorConfig{}
+	}
+	cfg := cfg_arr.first()
+
+	response_dto := dto.CodeGeneratorConfigDto{
+		id: cfg.id
+		table_name: cfg.table_name
+		basic: json.decode(dto.CodeGeneratorConfigBasic, cfg.basic)!
+		fields: json.decode([]dto.CodeGeneratorConfigFields, cfg.fields)!
+		insert_and_update: json.decode(dto.CodeGeneratorConfigInsertAndUpdate, cfg.insert_and_update)!
+		delete_info: json.decode(dto.CodeGeneratorConfigDeleteInfo, cfg.delete_info)!
+		query_fields: json.decode([]dto.CodeGeneratorConfigQueryFields, cfg.query_fields)!
+		table_fields: json.decode([]dto.CodeGeneratorConfigTableFields, cfg.table_fields)!
+		update_time: cfg.update_time
+		create_time: cfg.create_time
+	}
+
+	resp_success[dto.CodeGeneratorConfigDto](mut ctx, data: response_dto)!
+}
+
+pub fn code_generator_table_update_config(mut ctx very.Context) ! {
+	query_dto := ctx.body_parse[dto.CodeGeneratorConfigDto]()!
+
+	println(query_dto)
+
+	cfg := entities.CodeGeneratorConfig{
+		table_name: query_dto.table_name
+		basic: json.encode(query_dto.basic)
+		fields: json.encode(query_dto.fields)
+		insert_and_update: json.encode(query_dto.insert_and_update)
+		delete_info: json.encode(query_dto.delete_info)
+		query_fields: json.encode(query_dto.query_fields)
+		detail: ''
+		table_fields: json.encode(query_dto.table_fields)
+		update_time: time.now().custom_format(time_format)
+		create_time: time.now().custom_format(time_format)
+	}
+
+	sql ctx.db {
+		delete from entities.CodeGeneratorConfig where table_name == cfg.table_name
+		insert cfg into entities.CodeGeneratorConfig
+	}!
+
+	resp_success[string](mut ctx, data: '')!
 }
 
 pub fn code_generator_config_query(mut ctx very.Context) ! {

@@ -17,6 +17,6 @@ fn main() {
 
 	routers.register_router(mut app)
 
-	vcolor.hi_yellow('> It’s simple, but someone has to do it, so I came.')
+	vcolor.hi_yellow('> It’s simple, but someone has to do it, so i came.')
 	app.run()
 }

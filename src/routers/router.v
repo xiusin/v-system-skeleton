@@ -79,7 +79,9 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/helpDoc/helpDocCatalog/add', handlers.help_doc_catalog_add)
 		support_api.get('/helpDoc/helpDocCatalog/getAll', handlers.help_doc_catalog_get_all)
 		support_api.post('/codeGenerator/table/queryTableList', handlers.code_generator_query_table_list)
-		support_api.get('/codeGenerator/queryTableColumn/:tbl_name', handlers.code_generator_query_table_column)
+		support_api.get('/codeGenerator/table/getTableColumns/:tbl_name', handlers.code_generator_query_table_column)
+		support_api.get('/codeGenerator/table/getConfig/:tbl_name', handlers.code_generator_table_get_config)
+		support_api.post('/codeGenerator/table/updateConfig', handlers.code_generator_table_update_config)
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}

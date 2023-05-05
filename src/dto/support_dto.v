@@ -15,6 +15,13 @@ pub mut:
 	config_key string [json: 'configKey']
 }
 
+pub struct CodeGeneratorTableListDto {
+pub mut:
+	page_num   int    [json: 'pageNum']
+	page_size  int    [json: 'pageSize']
+	config_key string [json: 'configKey']
+}
+
 pub struct FileDto {
 pub mut:
 	page_num          int    [json: 'pageNum']

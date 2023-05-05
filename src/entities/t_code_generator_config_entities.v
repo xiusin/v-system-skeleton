@@ -11,6 +11,7 @@ pub mut:
 	delete_info       string
 	query_fields      string
 	detail            string
+	table_fields      string
 	update_time       string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
 	create_time       string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 }
