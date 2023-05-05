@@ -5,6 +5,7 @@ import config
 import routers
 import handlers
 import xiusin.very.di
+import xiusin.vcolor
 
 fn main() {
 	mut app := very.new(very.default_configuration())
@@ -27,5 +28,7 @@ fn main() {
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
 
 	routers.register_router(mut app)
+
+	vcolor.hi_yellow('> It’s simple, but someone has to do it, so I came.')
 	app.run()
 }
