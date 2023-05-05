@@ -68,6 +68,7 @@ pub fn dict_value_add(mut ctx very.Context) ! {
 
 	check_entity_exists[entities.DictValue](mut ctx, 'dict_key_id = ${value.dict_key_id}',
 		"value_code = '${value.value_code}'")!
+
 	value.create_time = time.now().custom_format(time_format)
 	value.update_time = time.now().custom_format(time_format)
 
@@ -167,8 +168,8 @@ pub fn file_upload(mut ctx very.Context) ! {
 		sql ctx.db {
 			insert file into entities.File
 		}!
-		file.id = ctx.db.last_id()
 
+		file.id = ctx.db.last_id()
 		files << file
 	}
 
@@ -296,9 +297,24 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 
 // code_generator_query_table_list 查询数据表列表  sqlite or mysql
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
+	sql := "select * from sqlite_master where type = 'table' and name != 'sqlite_sequence' order by name"
+	mut builder := entities.new_builder(true)
+	tables := builder.query_raw[entities.SqliteMaster](mut ctx, sql)!
+
+	mut cgct := []entities.CodeGeneratorConfigTable{len: tables.len}
+	for table in tables {
+		cgct << entities.CodeGeneratorConfigTable{
+			table_name: table.tbl_name
+		}
+	}
+	resp_success[[]entities.CodeGeneratorConfigTable](mut ctx, data: cgct)!
 }
 
 pub fn code_generator_query_table_column(mut ctx very.Context) ! {
+	tbl_name := ctx.param('tbl_name')
+	mut builder := entities.new_builder(true)
+	columns := builder.query_raw[entities.CodeGeneratorConfigColumnSqlite](mut ctx, 'PRAGMA table_info(${tbl_name})')!
+	resp_success[[]entities.CodeGeneratorConfigColumnSqlite](mut ctx, data: columns)!
 }
 
 pub fn code_generator_config_query(mut ctx very.Context) ! {

@@ -15,14 +15,12 @@ pub fn access_log(mut ctx very.Context) ! {
 		url: ctx.path()
 		method: ctx.req.method.str()
 		param: ''
-		ip: ''
 		user_agent: ctx.header(.user_agent)
 		success_flag: false
-		fail_reason: ''
 		update_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
 	ctx.next()!
-	// 访问日志
+	log.fail_reason = ctx.err().str()
 }

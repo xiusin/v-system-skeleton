@@ -2,6 +2,7 @@ module entities
 
 import math
 import db.sqlite
+import xiusin.very
 
 [heap]
 pub struct Builder {
@@ -103,30 +104,31 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
 	mut collection := []T{}
 	for it in items {
-		item := T{}
-		for idx, sel_field in info.fields {
-			$for field in T.fields {
-				if sel_field.ends_with('.' + field.name) {
-					$if field.typ is string {
-						item.$(field.name) = it.vals[idx].str()
-					} $else $if field.typ is int {
-						item.$(field.name) = it.vals[idx].int()
-					} $else $if field.typ is i8 {
-						item.$(field.name) = it.vals[idx].i8()
-					} $else $if field.typ is i64 {
-						item.$(field.name) = it.vals[idx].i64()
-					} $else $if field.typ is i16 {
-						item.$(field.name) = it.vals[idx].i16()
-					} $else $if field.typ is bool {
-						item.$(field.name) = it.vals[idx].bool()
-					}
-				}
-			}
-		}
-		collection << item
+		collection << info.row_to_item[T](it)
 	}
-
 	return collection
+}
+
+pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
+	item := T{}
+	mut idx := 0
+	$for field in T.fields {
+		$if field.typ is string {
+			item.$(field.name) = it.vals[idx].str()
+		} $else $if field.typ is int {
+			item.$(field.name) = it.vals[idx].int()
+		} $else $if field.typ is i8 {
+			item.$(field.name) = it.vals[idx].i8()
+		} $else $if field.typ is i64 {
+			item.$(field.name) = it.vals[idx].i64()
+		} $else $if field.typ is i16 {
+			item.$(field.name) = it.vals[idx].i16()
+		} $else $if field.typ is bool {
+			item.$(field.name) = it.vals[idx].bool()
+		}
+		idx++
+	}
+	return item
 }
 
 pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []sqlite.Row) !Paginator[T] {
@@ -165,6 +167,15 @@ pub fn (mut info Builder) order_by_desc(field string) &Builder {
 pub fn (mut info Builder) table(table string) &Builder {
 	info.table = table
 	return info
+}
+
+pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
+	db := &sqlite.DB(ctx.di.get[sqlite.DB]('db')!)
+	data_items, code := db.exec(query)
+	if code != 101 {
+		return db.error_message(code, query)
+	}
+	return info.row_to_collection[T](data_items)
 }
 
 // get_entity_fields 获取table 字段

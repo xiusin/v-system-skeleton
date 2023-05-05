@@ -1,18 +1,23 @@
-POST http://localhost:8080/login
+POST {{domain}}/login
 Content-Type: application/json
 
 {
-  "loginName": "admin",
+  "username": "admin",
   "password": "123456",
   "captchaCode": "",
   "captchaUuid": "",
   "loginDevice": 1
 }
 
-###
-GET http://localhost:8080/menu/query
-Accept: application/json, text/plain, */*
+
+###  code_generator_query_table_list
+POST {{domain}}/support/codeGenerator/queryTableList
+Content-Type: application/json
+x-access-token: {{token}}
+
+{}
 
 ###
-GET http://localhost:8080/menu/tree
-Accept: application/json, text/plain, */*
+GET {{domain}}/support/codeGenerator/queryTableColumn/t_code_generator_config
+x-access-token: {{token}}
+

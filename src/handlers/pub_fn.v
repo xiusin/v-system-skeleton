@@ -66,3 +66,12 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 		return error('已经存在相同的数据')
 	}
 }
+
+pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
+	ctx.json[Resp[Empty]](Resp[Empty]{
+		code: 500
+		ok: false
+		msg: ctx.err().msg()
+		data: Empty{}
+	})
+}

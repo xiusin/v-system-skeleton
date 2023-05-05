@@ -51,8 +51,9 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 		select from entities.Employee where id == login_id limit 1
 	}!
 	if employees.len == 0 {
-		return error('no user')
+		return error('用户不存在')
 	}
+
 	mut employee := employees.first()
 	if with_token.len > 0 && with_token[0] {
 		make_token(mut employee)
@@ -64,9 +65,11 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 
 pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
 	password := md5.hexhash(login_dto.password)
+	println('hhh')
 	user := sql conn {
 		select from entities.Employee where login_name == login_dto.username && login_pwd == password limit 1
 	}!
+	println('hhh')
 	if user.len == 0 {
 		return error('不存在用户或密码错误')
 	}

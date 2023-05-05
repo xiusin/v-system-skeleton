@@ -15,6 +15,16 @@ pub mut:
 	create_time       string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 }
 
+[table: 'sqlite_master']
+pub struct SqliteMaster {
+pub mut:
+	@type    string
+	name     string
+	tbl_name string
+	rootpage int
+	sql      string
+}
+
 pub struct CodeGeneratorConfigTable {
 pub mut:
 	config_time   string [json: 'configTime']
@@ -22,6 +32,16 @@ pub mut:
 	table_comment string [json: 'tableComment']
 	table_name    string [json: 'tableName']
 	update_time   string [json: 'updateTime']
+}
+
+pub struct CodeGeneratorConfigColumnSqlite {
+pub mut:
+	cid        int
+	name       string
+	@type      string
+	notnull    int
+	dflt_value string
+	pk         int
 }
 
 pub struct CodeGeneratorConfigColumn {
