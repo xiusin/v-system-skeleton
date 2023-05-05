@@ -24,4 +24,4 @@ bin/
 *.js
 /uploads/
 *.log
-*vue3
+/typescript-ant-design-vue3/yarn.lock

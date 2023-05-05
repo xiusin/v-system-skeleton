@@ -277,24 +277,12 @@ pub fn change_log_query_page(mut ctx very.Context) ! {
 	resp_success[entities.Paginator[entities.ChangeLog]](mut ctx, data: paginator)!
 }
 
-pub fn help_doc_query(mut ctx very.Context) ! {
-}
-
-
 pub fn help_doc_catalog_add(mut ctx very.Context) ! {
 	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
 	catalog.create_time = time.now().custom_format(time_format)
 	catalog.update_time = time.now().custom_format(time_format)
 	sql ctx.db {
 		insert catalog into entities.HelpDocCatalog
-	}!
-	resp_success[string](mut ctx, data: '')!
-}
-
-pub fn help_doc_catalog_update(mut ctx very.Context) ! {
-	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
-	sql ctx.db {
-		update entities.HelpDocCatalog set name = catalog.name, parent_id = catalog.parent_id, sort = catalog.sort,update_time = time.now().custom_format(time_format) where id == catalog.id
 	}!
 	resp_success[string](mut ctx, data: '')!
 }
@@ -306,16 +294,24 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 	resp_success[[]entities.HelpDocCatalog](mut ctx, data: catalogs)!
 }
 
-
 // code_generator_query_table_list 查询数据表列表  sqlite or mysql
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
-
 }
 
 pub fn code_generator_query_table_column(mut ctx very.Context) ! {
-
 }
 
 pub fn code_generator_config_query(mut ctx very.Context) ! {
+}
 
+pub fn help_doc_query(mut ctx very.Context) ! {
+}
+
+pub fn help_doc_catalog_update(mut ctx very.Context) ! {
+	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
+	sql ctx.db {
+		update entities.HelpDocCatalog set name = catalog.name, parent_id = catalog.parent_id,
+		sort = catalog.sort, update_time = time.now().custom_format(time_format) where id == catalog.id
+	}!
+	resp_success[string](mut ctx, data: '')!
 }

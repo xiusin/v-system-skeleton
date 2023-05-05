@@ -1,28 +1,12 @@
 module middlewares
 
 import xiusin.very
-import time
 import crypto.hmac
 import encoding.base64
 import crypto.sha256
 import config
 import json
-
-pub struct JwtHeader {
-	alg string
-	typ string
-}
-
-pub struct JwtPayload {
-	sub         string    // (subject) = Entity to whom the token belongs, usually the user ID;
-	iss         string    // (issuer) = Token issuer;
-	exp         string    // (expiration) = Timestamp of when the token will expire;
-	iat         time.Time // (issued at) = Timestamp of when the token was created;
-	aud         string    // (audience) = Token recipient, represents the application that will use it.
-	name        string
-	roles       string
-	permissions string
-}
+import services
 
 pub fn auth(mut ctx very.Context) ! {
 	if !ctx.path().ends_with('/login') && !ctx.path().starts_with('/uploads')
@@ -43,7 +27,7 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		jwt_payload_stringify := base64.url_decode_str(token.split('.')[1])
-		jwt_payload := json.decode(JwtPayload, jwt_payload_stringify) or {
+		jwt_payload := json.decode(services.JwtPayload, jwt_payload_stringify) or {
 			ctx.stop()
 			ctx.set_status(.not_implemented)
 			return error('jwt decode error')

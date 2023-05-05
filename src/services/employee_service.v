@@ -55,7 +55,7 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 	}
 	mut employee := employees.first()
 	if with_token.len > 0 && with_token[0] {
-		employee.make_token()
+		make_token(mut employee)
 	}
 	employee.login_pwd = ''
 
@@ -75,7 +75,7 @@ pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entiti
 		return error('用户已被禁用')
 	}
 	login_user.login_pwd = ''
-	login_user.make_token()
+	make_token(mut login_user)
 
 	return login_user
 }

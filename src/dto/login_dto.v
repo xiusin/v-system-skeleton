@@ -34,6 +34,9 @@ pub mut:
 	last_login_ip           string          [json: 'lastLoginIp']
 	last_login_time         string          [json: 'lastLoginTime']
 	last_login_user_agent   string          [json: 'lastLoginUserAgent']
+	role_id_list            []int           [json: 'roleIdList']
+	role_name_list          []string        [json: 'roleNameList']
+	department_name         string          [json: 'departmentName']
 	username                string
 	authorities             []struct {
 		authority string
