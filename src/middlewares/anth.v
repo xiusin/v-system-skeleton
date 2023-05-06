@@ -12,28 +12,34 @@ pub fn auth(mut ctx very.Context) ! {
 	if !ctx.path().ends_with('/login') && !ctx.path().starts_with('/uploads')
 		&& !ctx.path().starts_with('/manages') {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
-		// // todo return error auto stop
 		if token.len == 0 {
-			println('token.len  = 0')
 			ctx.stop()
 			ctx.set_status(.forbidden)
 			return error('miss token')
 		}
+
 		if !auth_verify(token) {
 			println('token.no_valid  = 0')
 			ctx.stop()
 			ctx.set_status(.forbidden)
-			return error('no valid token')
+			return error('token无效')
 		}
 
 		jwt_payload_stringify := base64.url_decode_str(token.split('.')[1])
 		jwt_payload := json.decode(services.JwtPayload, jwt_payload_stringify) or {
 			ctx.stop()
 			ctx.set_status(.not_implemented)
-			return error('jwt decode error')
+			return error('token解析错误')
 		}
 
 		login_user_id := jwt_payload.sub.int()
+		user := services.employee_info(ctx.db, login_user_id) or {
+			ctx.set_status(.forbidden)
+			ctx.stop()
+			return error('用户不能存在')
+		}
+
+		ctx.set('user_name', user.actual_name)
 		ctx.set('user_id', login_user_id)
 		ctx.next()!
 		return

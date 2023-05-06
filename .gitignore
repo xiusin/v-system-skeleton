@@ -25,3 +25,4 @@ bin/
 /uploads/
 *.log
 /typescript-ant-design-vue3/yarn.lock
+*.zip
