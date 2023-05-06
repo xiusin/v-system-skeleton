@@ -73,6 +73,12 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 	})!
 }
 
+pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
+	return sql ctx.db {
+		select from entities.DictKey order by id desc
+	}!
+}
+
 pub fn support_file_query(mut ctx very.Context) !entities.Paginator[entities.File] {
 	return base_query[entities.File](mut ctx, fn [mut ctx] () ![]string {
 		mut where := []string{}

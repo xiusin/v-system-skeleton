@@ -59,6 +59,7 @@ pub fn register_router(mut app very.Application) {
 	}
 	mut support_api := app.group('/support')
 	{
+		support_api.get('/dict/key/queryAll', handlers.dict_key_query_all)
 		support_api.post('/dict/key/query', handlers.dict_key_query)
 		support_api.post('/dict/key/edit', handlers.dict_key_edit)
 		support_api.post('/dict/key/add', handlers.dict_key_add)

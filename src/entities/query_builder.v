@@ -4,6 +4,10 @@ import math
 import db.sqlite
 import xiusin.very
 
+// TODO
+// - 支持对象类型自动解析
+// - 支持字段过滤
+// - 多功能语句构建
 [heap]
 pub struct Builder {
 mut:
