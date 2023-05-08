@@ -20,3 +20,25 @@ fn (m &Min[T]) validate(data &T) ! {
 		}
 	}
 }
+
+// pub interface MM[T] {
+// 	dump_data(&T)
+// }
+//
+// pub struct DD[T] {
+//
+// }
+//
+// pub fn (d &DD[T]) dump_data(data &T) {
+//
+// }
+//
+// struct Test {
+//
+// }
+//
+// fn main () {
+// 	mut mms := []MM[Test]{}
+// 	mut dd :=  DD[Test]{}
+// 	mms << &dd
+// }

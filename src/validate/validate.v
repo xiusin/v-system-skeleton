@@ -49,7 +49,7 @@ fn validate[T](data T) ?[]IError {
 			}
 
 			for mut validator in validators {
-				validator.validate(data) or { errs << err }
+				validator.validate(&data) or { errs << err }
 			}
 		}
 	}
