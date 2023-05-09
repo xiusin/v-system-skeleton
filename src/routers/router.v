@@ -86,4 +86,6 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}
+	mut app_api := app.group('/app')
+	app_api.mount(mut handlers.App{})
 }
