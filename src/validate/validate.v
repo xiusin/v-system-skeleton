@@ -30,11 +30,11 @@ fn validate[T](data T) ?[]IError {
 				arr := rule.trim_space().split('=')
 				match arr[0] {
 					'min' {
-						validators << &Min[T]{
+						validators << Validator(&Min[T]{
 							field: clone_field
 							message: message_map['min']
 							value: rule
-						}
+						})
 					}
 					// 'max' {}
 					// 'len' {}
