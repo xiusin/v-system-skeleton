@@ -2,6 +2,7 @@ module handlers
 
 import xiusin.very
 import db.sqlite
+import time
 
 [group: '/app']
 pub struct App {
@@ -18,4 +19,10 @@ pub fn (mut app App) app_index() {
 ['/info'; get]
 pub fn (mut app App) app_info() {
 	println('app_info')
+}
+
+['/long_time'; get]
+pub fn (mut app App) long_time() {
+	time.sleep(time.second * 10)
+	println('10秒超时完成')
 }
