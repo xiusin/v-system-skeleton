@@ -15,6 +15,7 @@ pub fn register_router(mut app very.Application) {
 	app.post('/changeLog/add', handlers.change_log_add)
 	app.post('/changeLog/update', handlers.change_log_update)
 	app.get('/changeLog/delete/:id', handlers.change_log_delete)
+	app.post('/changeLog/batchDelete', handlers.change_log_batch_delete)
 	app.post('/changeLog/queryPage', handlers.change_log_query_page)
 
 	mut role_api := app.group('/role')
@@ -86,6 +87,5 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}
-	mut app_api := app.group('/app')
-	app_api.mount(mut handlers.App{})
+	app.mount[handlers.App]() or {}
 }

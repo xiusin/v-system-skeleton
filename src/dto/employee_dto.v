@@ -17,3 +17,21 @@ pub mut:
 	new_password string [json: 'new_password']
 	old_password string [json: 'old_password']
 }
+
+pub struct EmployeeRespDto {
+pub mut:
+	id                 int      [json: 'employeeId']
+	login_name         string   [json: 'loginName']
+	login_pwd          string   [json: 'loginPwd']
+	actual_name        string   [json: 'actualName']
+	gender             i8
+	phone              string
+	department_id      int      [json: 'departmentId']
+	department_name    string   [json: 'departmentName']
+	disabled_flag      bool     [json: 'disabledFlag']
+	deleted_flag       bool     [json: 'deletedFlag']
+	administrator_flag bool     [json: 'administratorFlag']
+	remark             string
+	role_id_list       []int    [json: 'roleIdList']
+	role_name_list     []string [json: 'roleNameList']
+}

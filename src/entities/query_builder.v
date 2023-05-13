@@ -117,20 +117,22 @@ pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
 	item := T{}
 	mut idx := 0
 	$for field in T.fields {
-		$if field.typ is string {
-			item.$(field.name) = it.vals[idx].str()
-		} $else $if field.typ is int {
-			item.$(field.name) = it.vals[idx].int()
-		} $else $if field.typ is i8 {
-			item.$(field.name) = it.vals[idx].i8()
-		} $else $if field.typ is i64 {
-			item.$(field.name) = it.vals[idx].i64()
-		} $else $if field.typ is i16 {
-			item.$(field.name) = it.vals[idx].i16()
-		} $else $if field.typ is bool {
-			item.$(field.name) = it.vals[idx].bool()
+		if field.is_pub && !field.attrs.contains('build: skip') {
+			$if field.typ is string {
+				item.$(field.name) = it.vals[idx].str()
+			} $else $if field.typ is int {
+				item.$(field.name) = it.vals[idx].int()
+			} $else $if field.typ is i8 {
+				item.$(field.name) = it.vals[idx].i8()
+			} $else $if field.typ is i64 {
+				item.$(field.name) = it.vals[idx].i64()
+			} $else $if field.typ is i16 {
+				item.$(field.name) = it.vals[idx].i16()
+			} $else $if field.typ is bool {
+				item.$(field.name) = it.vals[idx].bool()
+			}
+			idx++
 		}
-		idx++
 	}
 	return item
 }

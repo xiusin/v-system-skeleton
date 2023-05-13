@@ -13,7 +13,8 @@ pub mut:
 
 ['/index'; get]
 pub fn (mut app App) app_index() {
-	app.ctx.text('hello app index: ${app.db.str()}')
+	println('hello index')
+	app.ctx.text('hello app index')
 }
 
 ['/info'; get]

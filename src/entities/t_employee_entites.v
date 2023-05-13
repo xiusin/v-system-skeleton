@@ -18,3 +18,10 @@ pub mut:
 	create_time        string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 	token              string [build: 'skip']
 }
+
+pub struct EmployeeRoleRelation {
+pub mut:
+	employee_id    int
+	role_id_list   string
+	role_name_list string
+}

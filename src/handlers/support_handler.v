@@ -279,6 +279,16 @@ pub fn change_log_delete(mut ctx very.Context) ! {
 	resp_success[string](mut ctx, data: '')!
 }
 
+pub fn change_log_batch_delete(mut ctx very.Context) ! {
+	mut ids := ctx.body_parse[[]int]()!
+	for id in ids {
+		sql ctx.db {
+			delete from entities.ChangeLog where id == id
+		}!
+	}
+	resp_success[string](mut ctx, data: '')!
+}
+
 pub fn change_log_query_page(mut ctx very.Context) ! {
 	paginator := services.support_change_log_query(mut ctx)!
 	resp_success[entities.Paginator[entities.ChangeLog]](mut ctx, data: paginator)!

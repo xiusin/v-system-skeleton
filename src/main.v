@@ -17,11 +17,10 @@ fn main() {
 
 	app.register_on_interrupt(fn [mut db] () ! {
 		db.close()!
-		println('close db')
+		exit(0)
 	})
 
 	routers.register_router(mut app)
-
 	vcolor.hi_yellow('> It’s simple, but someone has to do it, so i came.')
 	app.run()
 }

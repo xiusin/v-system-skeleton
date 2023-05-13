@@ -10,6 +10,7 @@ import xiusin.very
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
 		query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
+
 		mut where := []string{}
 		query_role_id := query_dto.role_id
 
@@ -25,8 +26,10 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 			where << 'id in (${employee_ids.join(',')})'
 		}
 
-		if query_dto.department_id != none && query_dto.department_id? > 0 {
-			where << 'department_id = (${query_dto.department_id?})'
+		if query_dto.department_id != none {
+			if query_dto.department_id? > 0 {
+				where << 'department_id = (${query_dto.department_id?})'
+			}
 		}
 
 		if query_dto.keyword.len > 0 {
@@ -41,7 +44,6 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 			flag := if query_dto.disabled_flag? { 1 } else { 0 }
 			where << 'disabled_flag = ${flag}'
 		}
-
 		return where
 	})!
 }
@@ -69,7 +71,6 @@ pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entiti
 	user := sql conn {
 		select from entities.Employee where login_name == login_dto.username && login_pwd == password limit 1
 	}!
-	println('hhh')
 	if user.len == 0 {
 		return error('不存在用户或密码错误')
 	}

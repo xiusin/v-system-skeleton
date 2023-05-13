@@ -63,6 +63,9 @@
         <template v-else-if="column.dataIndex === 'gender'">
           <span>{{ $smartEnumPlugin.getDescByValue('GENDER_ENUM', text) }}</span>
         </template>
+        <template v-else-if="column.dataIndex === 'roleNameList'">
+                  <span>{{text.join(',')}}</span>
+        </template>
         <template v-else-if="column.dataIndex === 'operate'">
           <div class="smart-table-operate">
             <a-button v-privilege="'system:employee:update'" type="link" size="small" @click="showDrawer(record)">编辑</a-button>
