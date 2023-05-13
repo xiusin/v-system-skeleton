@@ -11,6 +11,12 @@ pub mut:
 	keywords      string [json: 'keywords']
 }
 
+pub struct EmployeeBatchDepartmentDto {
+pub mut:
+	employee_id_list []int [json: 'employeeIdList']
+	department_id    int   [json: 'departmentId']
+}
+
 pub struct EmployeeUpdatePasswordDto {
 pub mut:
 	confirm_pwd  string [json: 'confirm_pwd']

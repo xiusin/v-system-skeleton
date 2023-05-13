@@ -57,6 +57,7 @@ pub fn register_router(mut app very.Application) {
 		employee_api.post('/update', handlers.employee_update)
 		employee_api.post('/add', handlers.employee_add)
 		employee_api.post('/update/batch/delete', handlers.employee_delete)
+		employee_api.post('/update/batch/department', handlers.employee_update_batch_department)
 	}
 	mut support_api := app.group('/support')
 	{

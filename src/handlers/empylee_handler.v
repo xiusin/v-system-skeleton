@@ -150,6 +150,17 @@ pub fn employee_delete(mut ctx very.Context) ! {
 	resp_success[string](mut ctx, data: '')!
 }
 
+pub fn employee_update_batch_department(mut ctx very.Context) ! {
+	query_dto := ctx.body_parse[dto.EmployeeBatchDepartmentDto]()!
+	for employee_id in query_dto.employee_id_list {
+		sql ctx.db {
+			update entities.Employee set department_id = query_dto.department_id, update_time = time.now().custom_format(time_format)
+			where id == employee_id
+		}!
+	}
+	resp_success[string](mut ctx, data: '')!
+}
+
 pub fn employee_update(mut ctx very.Context) ! {
 	employee := ctx.body_parse[dto.EmployeeRespDto]()!
 
