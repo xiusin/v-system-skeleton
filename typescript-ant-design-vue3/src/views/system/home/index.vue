@@ -49,9 +49,9 @@
           <HomeQuickEntry />
         </a-col> -->
                 <!--关注公众号-->
-                <a-col :span="24">
+                <!-- <a-col :span="24">
                     <OfficialAccountCard />
-                </a-col>
+                </a-col> -->
                 <!--待办、已办-->
                 <a-col :span="24">
                     <ToBeDoneCard />

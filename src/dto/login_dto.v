@@ -38,17 +38,30 @@ pub mut:
 	role_name_list          []string        [json: 'roleNameList']
 	department_name         string          [json: 'departmentName']
 	username                string
-	authorities             []struct {
-		authority string
-	}
+	authorities             []Authority
+}
+
+pub struct Authority {
+	authority string
 }
 
 pub fn new_login_response_dto[T](user T, menus []entities.Menu) LoginResponseDto {
-	dto := LoginResponseDto{
+	mut dto := LoginResponseDto{ // FIXME 使用反射居然可以直接修改非mut的值
 		menu_list: menus
 	}
 	$for field in T.fields {
 		dto.$(field.name) = user.$(field.name)
 	}
+	mut authorities := []Authority{}
+
+	for menu in menus {
+		if menu.web_perms.len > 0 {
+			authorities << Authority{
+				authority: menu.web_perms
+			}
+		}
+	}
+
+	dto.authorities = authorities
 	return dto
 }

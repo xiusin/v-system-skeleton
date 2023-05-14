@@ -1,5 +1,5 @@
 <template>
-  <default-home-card icon="PieChartTwoTone" title="【1024创新实验室】上班摸鱼次数">
+  <default-home-card icon="PieChartTwoTone" title="上班摸鱼次数">
     <div class="echarts-box">
       <div class="pie-main" id="pie-main"></div>
     </div>

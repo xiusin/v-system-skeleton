@@ -3,6 +3,7 @@ module routers
 import handlers
 import xiusin.very
 import middlewares
+import handlers.oa
 
 pub fn register_router(mut app very.Application) {
 	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
@@ -88,5 +89,8 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}
-	app.mount[handlers.App]() or {}
+	mut oa_api := app.group('/oa')
+	{
+		oa_api.mount[oa.Notice]() or { println(err) }
+	}
 }
