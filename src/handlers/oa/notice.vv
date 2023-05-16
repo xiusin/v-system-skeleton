@@ -10,13 +10,14 @@ import handlers
 
 [group: '/notice']
 pub struct Notice {
+	very.Context
 pub mut:
 	db  &sqlite.DB    [inject: 'db'] = unsafe { nil }
 	ctx &very.Context = unsafe { nil }
 }
 
 ['/query'; post]
-pub fn (mut app Notice) query() ! {
+pub fn (mut app Notice) query() !very.Response {
 	paginator := services.base_query[entities.Notice](mut app.ctx, fn [mut app] () ![]string {
 		query_dto := app.ctx.body_parse[dto.NoticeRequestDto]()!
 		mut where := []string{}
@@ -44,14 +45,17 @@ pub fn (mut app Notice) query() ! {
 	})!
 
 	handlers.resp_success[entities.Paginator[entities.Notice]](mut app.ctx, data: paginator)!
+
+	return error('xxxx')
 }
 
 ['/add'; post]
-pub fn (mut app Notice) add() {
+pub fn (mut app Notice) add() !very.Response {
+	return error('xxx')
 }
 
 ['/delete/:id'; get]
-pub fn (mut app Notice) delete() ! {
+pub fn (mut app Notice) delete() !very.Response {
 	id := app.ctx.param('id').int()
 	println(id)
 	sql app.ctx.db {
@@ -59,10 +63,11 @@ pub fn (mut app Notice) delete() ! {
 		where id == id
 	}!
 	handlers.resp_success[string](mut app.ctx, data: '')!
+	return error('xxxx')
 }
 
 ['/getUpdateVO/:id'; get]
-pub fn (mut app Notice) info() {
+pub fn (mut app Notice) info() !very.Response {
 	println('hello index')
-	app.ctx.text('hello app index')
+	return app.text('hello app index')
 }

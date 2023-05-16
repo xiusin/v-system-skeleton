@@ -26,10 +26,10 @@ pub fn request_log(mut ctx very.Context) ! {
 	}
 
 	mut status := vcolor.Attribute.bg_hi_green
-	if ctx.writer().status_code > 400 || ctx.writer().status_code < 500 {
+	if ctx.response().status_code > 400 || ctx.response().status_code < 500 {
 		status = .bg_cyan
 	}
-	if ctx.writer().status_code >= 500 {
+	if ctx.response().status_code >= 500 {
 		status = .bg_red
 	}
 	mut status_color := vcolor.new(...[vcolor.Attribute.fg_white, vcolor.Attribute.bold, status])
@@ -39,5 +39,5 @@ pub fn request_log(mut ctx very.Context) ! {
 		use_time += ' '.repeat(10 - use_time.len + 1)
 	}
 
-	println('[Very] ${time.now().format_rfc3339()} | ${status_color.sprint(ctx.writer().status_code.str())} | ${method_color.sprint(method)} | ${use_time} | ${ctx.path()} ')
+	println('[Very] ${time.now().format_rfc3339()} | ${status_color.sprint(ctx.response().status_code.str())} | ${method_color.sprint(method)} | ${use_time} | ${ctx.path()} ')
 }

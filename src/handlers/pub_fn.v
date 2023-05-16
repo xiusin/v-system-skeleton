@@ -37,14 +37,14 @@ pub fn resp_success[T](mut ctx very.Context, data Resp[T]) ! {
 	mut resp := data
 	resp.ok = true
 	resp.msg = 'success'
-	ctx.json[Resp[T]](resp)
+	ctx.json[Resp[T]](resp)!
 }
 
 pub fn resp_error[T](mut ctx very.Context, data Resp[T]) ! {
 	mut resp := data
 	resp.ok = false
 	resp.msg = 'failed'
-	ctx.json[Resp[T]](resp)
+	ctx.json[Resp[T]](resp)!
 }
 
 pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
@@ -74,5 +74,5 @@ pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
 		ok: false
 		msg: ctx.err().msg()
 		data: Empty{}
-	})
+	})!
 }

@@ -3,14 +3,13 @@ module routers
 import handlers
 import xiusin.very
 import middlewares
-import handlers.oa
 
 pub fn register_router(mut app very.Application) {
 	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
 
 	app.statics('/uploads', 'uploads')
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
-
+	app.mount[handlers.App]()
 	app.post('/login', handlers.login)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
 	app.post('/changeLog/add', handlers.change_log_add)
@@ -89,8 +88,8 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
 	}
-	mut oa_api := app.group('/oa')
-	{
-		oa_api.mount[oa.Notice]() or { println(err) }
-	}
+	// mut oa_api := app.group('/oa')
+	// {
+	// 	oa_api.mount[oa.Notice]()
+	// }
 }
