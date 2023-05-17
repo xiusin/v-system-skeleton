@@ -5,7 +5,7 @@ import db.sqlite
 
 [group: '/app']
 pub struct App {
-	very.Context
+	very.Context // 自动注入
 pub mut:
 	db &sqlite.DB [inject: 'db'] = unsafe { nil }
 }

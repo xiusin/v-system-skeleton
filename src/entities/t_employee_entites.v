@@ -16,7 +16,7 @@ pub mut:
 	remark             string
 	update_time        string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
 	create_time        string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
-	token              string [build: 'skip']
+	token              string [sql: '-']
 }
 
 pub struct EmployeeRoleRelation {
