@@ -19,9 +19,9 @@ pub mut:
 
 pub struct EmployeeUpdatePasswordDto {
 pub mut:
-	confirm_pwd  string [json: 'confirm_pwd']
-	new_password string [json: 'new_password']
-	old_password string [json: 'old_password']
+	confirm_pwd  string [json: 'confirmPwd']
+	new_password string [json: 'newPassword']
+	old_password string [json: 'oldPassword']
 }
 
 pub struct EmployeeRespDto {

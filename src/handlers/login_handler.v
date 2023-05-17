@@ -17,6 +17,10 @@ pub fn login(mut ctx very.Context) ! {
 	)!
 }
 
+pub fn logout(mut ctx very.Context) ! {
+	resp_success[string](mut ctx, data: '')!
+}
+
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
 	login_user := services.employee_info(ctx.db, user_id, true)!

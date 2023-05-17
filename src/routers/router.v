@@ -11,6 +11,7 @@ pub fn register_router(mut app very.Application) {
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
 	app.mount[handlers.App]()
 	app.post('/login', handlers.login)
+	app.get('/login/logout', handlers.logout)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
 	app.post('/changeLog/add', handlers.change_log_add)
 	app.post('/changeLog/update', handlers.change_log_update)
