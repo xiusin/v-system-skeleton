@@ -7,11 +7,16 @@ import middlewares
 pub fn register_router(mut app very.Application) {
 	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
 
+	app.statics('/uploads', 'uploads')
+	app.statics('/dist/', 'typescript-ant-design-vue3/dist/', 'index.html')
+	// app.mount[handlers.App]()
 	app.post('/login', handlers.login)
+	app.get('/login/logout', handlers.logout)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
 	app.post('/changeLog/add', handlers.change_log_add)
 	app.post('/changeLog/update', handlers.change_log_update)
 	app.get('/changeLog/delete/:id', handlers.change_log_delete)
+	app.post('/changeLog/batchDelete', handlers.change_log_batch_delete)
 	app.post('/changeLog/queryPage', handlers.change_log_query_page)
 
 	mut role_api := app.group('/role')
@@ -53,9 +58,11 @@ pub fn register_router(mut app very.Application) {
 		employee_api.post('/update', handlers.employee_update)
 		employee_api.post('/add', handlers.employee_add)
 		employee_api.post('/update/batch/delete', handlers.employee_delete)
+		employee_api.post('/update/batch/department', handlers.employee_update_batch_department)
 	}
 	mut support_api := app.group('/support')
 	{
+		support_api.get('/dict/key/queryAll', handlers.dict_key_query_all)
 		support_api.post('/dict/key/query', handlers.dict_key_query)
 		support_api.post('/dict/key/edit', handlers.dict_key_edit)
 		support_api.post('/dict/key/add', handlers.dict_key_add)
@@ -72,7 +79,20 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/tableColumn/update', handlers.table_column_update)
 		support_api.get('/tableColumn/getColumns/:table_id', handlers.table_column_get)
 		support_api.get('/helpDoc/queryHelpDocByRelationId/:id', handlers.help_doc_query)
+		support_api.post('/helpDoc/helpDocCatalog/update', handlers.help_doc_catalog_update)
+		support_api.post('/helpDoc/helpDocCatalog/add', handlers.help_doc_catalog_add)
+		support_api.get('/helpDoc/helpDocCatalog/getAll', handlers.help_doc_catalog_get_all)
+		support_api.post('/codeGenerator/table/queryTableList', handlers.code_generator_query_table_list)
+		support_api.get('/codeGenerator/table/getTableColumns/:tbl_name', handlers.code_generator_query_table_column)
+		support_api.get('/codeGenerator/table/getConfig/:tbl_name', handlers.code_generator_table_get_config)
+		support_api.post('/codeGenerator/table/updateConfig', handlers.code_generator_table_update_config)
+		support_api.post('/codeGenerator/code/preview', handlers.code_generator_code_preview)
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
+		support_api.post('/loginLog/page/query', handlers.login_log_page_query)
 	}
+	// mut oa_api := app.group('/oa')
+	// {
+	// 	oa_api.mount[oa.Notice]()
+	// }
 }

@@ -1,18 +1,349 @@
-POST http://localhost:8080/login
+POST {{domain}}/login
 Content-Type: application/json
 
 {
-  "loginName": "admin",
+  "username": "admin",
   "password": "123456",
   "captchaCode": "",
   "captchaUuid": "",
   "loginDevice": 1
 }
 
-###
-GET http://localhost:8080/menu/query
-Accept: application/json, text/plain, */*
+
+###  code_generator_query_table_list
+POST {{domain}}/support/codeGenerator/table/queryTableList
+Content-Type: application/json
+x-access-token: {{token}}
+
+{
+  "configKey": "",
+  "pageNum": 1,
+  "pageSize": 10
+}
 
 ###
-GET http://localhost:8080/menu/tree
-Accept: application/json, text/plain, */*
+GET {{domain}}/support/codeGenerator/table/getTableColumns/t_category
+x-access-token: {{token}}
+
+
+###
+GET {{domain}}/support/codeGenerator/table/getConfig/t_category
+x-access-token: {{token}}
+
+
+###
+POST {{domain}}/support/codeGenerator/table/updateConfig
+Content-Type: application/json
+x-access-token: {{token}}
+
+{
+  "tableName": "t_category",
+  "basic": {
+    "moduleName": "Category",
+    "javaPackageName": "net.lab1024.sa.admin.module.business.category",
+    "description": "分类表，主要用于商品分类",
+    "frontAuthor": "卓大",
+    "frontDate": "2022-10-26 19:56:20",
+    "backendAuthor": "卓大",
+    "backendDate": "2022-10-26 19:56:20",
+    "copyright": "1024创新实验室"
+  },
+  "fields": [
+    {
+      "columnName": "category_id",
+      "columnComment": "分类id",
+      "label": "分类id",
+      "fieldName": "categoryId",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": true,
+      "autoIncreaseFlag": true
+    },
+    {
+      "columnName": "category_name",
+      "columnComment": "分类名称",
+      "label": "分类名称",
+      "fieldName": "categoryName",
+      "javaType": "String",
+      "jsType": "String",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "category_type",
+      "columnComment": "分类类型",
+      "label": "分类类型",
+      "fieldName": "categoryType",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "parent_id",
+      "columnComment": "父级id",
+      "label": "父级id",
+      "fieldName": "parentId",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "sort",
+      "columnComment": "排序",
+      "label": "排序",
+      "fieldName": "sort",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "disabled_flag",
+      "columnComment": "是否禁用",
+      "label": "是否禁用",
+      "fieldName": "disabledFlag",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "deleted_flag",
+      "columnComment": "是否删除",
+      "label": "是否删除",
+      "fieldName": "deletedFlag",
+      "javaType": "Integer",
+      "jsType": "Number",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "remark",
+      "columnComment": "",
+      "label": "备注",
+      "fieldName": "remark",
+      "javaType": "String",
+      "jsType": "String",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "update_time",
+      "columnComment": "",
+      "label": "创建时间",
+      "fieldName": "updateTime",
+      "javaType": "LocalDateTime",
+      "jsType": "Date",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    },
+    {
+      "columnName": "create_time",
+      "columnComment": "",
+      "label": "更新时间",
+      "fieldName": "createTime",
+      "javaType": "LocalDateTime",
+      "jsType": "Date",
+      "dict": null,
+      "enumName": null,
+      "primaryKeyFlag": false,
+      "autoIncreaseFlag": false
+    }
+  ],
+  "insertAndUpdate": {
+    "isSupportInsertAndUpdate": true,
+    "pageType": "modal",
+    "width": "500px",
+    "countPerLine": 1,
+    "fieldList": [
+      {
+        "columnName": "category_id",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "InputNumber"
+      },
+      {
+        "columnName": "category_name",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "Input"
+      },
+      {
+        "columnName": "category_type",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "InputNumber"
+      },
+      {
+        "columnName": "parent_id",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "InputNumber"
+      },
+      {
+        "columnName": "sort",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "InputNumber"
+      },
+      {
+        "columnName": "disabled_flag",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "BooleanSelect"
+      },
+      {
+        "columnName": "deleted_flag",
+        "requiredFlag": true,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "BooleanSelect"
+      },
+      {
+        "columnName": "remark",
+        "requiredFlag": false,
+        "insertFlag": true,
+        "updateFlag": true,
+        "frontComponent": "Input"
+      },
+      {
+        "columnName": "update_time",
+        "requiredFlag": false,
+        "insertFlag": false,
+        "updateFlag": false,
+        "frontComponent": "DateTime"
+      },
+      {
+        "columnName": "create_time",
+        "requiredFlag": false,
+        "insertFlag": false,
+        "updateFlag": true,
+        "frontComponent": "DateTime"
+      }
+    ]
+  },
+  "deleteInfo": {
+    "isSupportDelete": true,
+    "isPhysicallyDeleted": false,
+    "deleteEnum": "SingleAndBatch"
+  },
+  "queryFields": [
+    {
+      "queryTypeEnum": "Like",
+      "label": "分类名称",
+      "fieldName": "categoryName",
+      "columnNameList": [
+        "category_name"
+      ],
+      "width": "200px"
+    }
+  ],
+  "tableFields": [
+    {
+      "columnName": "category_id",
+      "label": "分类id",
+      "fieldName": "categoryId",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "category_name",
+      "label": "分类名称",
+      "fieldName": "categoryName",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "category_type",
+      "label": "分类类型",
+      "fieldName": "categoryType",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "parent_id",
+      "label": "父级id",
+      "fieldName": "parentId",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "sort",
+      "label": "排序",
+      "fieldName": "sort",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "disabled_flag",
+      "label": "是否禁用",
+      "fieldName": "disabledFlag",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "deleted_flag",
+      "label": "是否删除",
+      "fieldName": "deletedFlag",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "remark",
+      "label": "备注",
+      "fieldName": "remark",
+      "showFlag": true,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "update_time",
+      "label": "更新时间",
+      "fieldName": "updateTime",
+      "showFlag": false,
+      "width": null,
+      "ellipsisFlag": true
+    },
+    {
+      "columnName": "create_time",
+      "label": "创建时间",
+      "fieldName": "createTime",
+      "showFlag": false,
+      "width": null,
+      "ellipsisFlag": true
+    }
+  ]
+}

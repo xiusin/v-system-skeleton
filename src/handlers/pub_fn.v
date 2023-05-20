@@ -7,9 +7,6 @@ import rand
 
 const time_format = 'YYYY-MM-DD HH:mm:ss'
 
-pub struct Empty {
-}
-
 [params]
 pub struct Resp[T] {
 pub mut:
@@ -65,4 +62,13 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 	if db.q_int(builder.to_sql(true)) > 0 { // TODO SQL拼错时无异常!
 		return error('已经存在相同的数据')
 	}
+}
+
+pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
+	ctx.json[Resp[string]](Resp[string]{
+		code: 500
+		ok: false
+		msg: ctx.err().msg()
+		data: ''
+	})
 }

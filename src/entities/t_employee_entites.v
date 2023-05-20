@@ -1,13 +1,5 @@
 module entities
 
-import middlewares
-import encoding.base64
-import time
-import crypto.sha256
-import crypto.hmac
-import json
-import config
-
 [table: 't_employee']
 pub struct Employee {
 pub mut:
@@ -24,21 +16,12 @@ pub mut:
 	remark             string
 	update_time        string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
 	create_time        string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
-	token              string [build: 'skip']
+	token              string [sql: '-']
 }
 
-pub fn (mut employee Employee) make_token() {
-	jwt_header := middlewares.JwtHeader{'HS256', 'JWT'}
-	jwt_payload := middlewares.JwtPayload{
-		sub: '${employee.id}'
-		name: '${employee.login_name}'
-		iat: time.now()
-	}
-
-	header := base64.url_encode(json.encode(jwt_header).bytes())
-	payload := base64.url_encode(json.encode(jwt_payload).bytes())
-	signature := base64.url_encode(hmac.new(config.get_secret_key().bytes(), '${header}.${payload}'.bytes(),
-		sha256.sum, sha256.block_size).bytestr().bytes())
-
-	employee.token = '${header}.${payload}.${signature}'
+pub struct EmployeeRoleRelation {
+pub mut:
+	employee_id    int
+	role_id_list   string
+	role_name_list string
 }

@@ -10,6 +10,7 @@ import xiusin.very
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
 		query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
+
 		mut where := []string{}
 		query_role_id := query_dto.role_id
 
@@ -25,8 +26,10 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 			where << 'id in (${employee_ids.join(',')})'
 		}
 
-		if query_dto.department_id != none && query_dto.department_id? > 0 {
-			where << 'department_id = (${query_dto.department_id?})'
+		if query_dto.department_id != none {
+			if query_dto.department_id? > 0 {
+				where << 'department_id = (${query_dto.department_id?})'
+			}
 		}
 
 		if query_dto.keyword.len > 0 {
@@ -41,7 +44,6 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 			flag := if query_dto.disabled_flag? { 1 } else { 0 }
 			where << 'disabled_flag = ${flag}'
 		}
-
 		return where
 	})!
 }
@@ -51,11 +53,12 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 		select from entities.Employee where id == login_id limit 1
 	}!
 	if employees.len == 0 {
-		return error('no user')
+		return error('用户不存在')
 	}
+
 	mut employee := employees.first()
 	if with_token.len > 0 && with_token[0] {
-		employee.make_token()
+		make_token(mut employee)
 	}
 	employee.login_pwd = ''
 
@@ -70,12 +73,15 @@ pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entiti
 	if user.len == 0 {
 		return error('不存在用户或密码错误')
 	}
+	println('3333')
 	mut login_user := user.first()
 	if login_user.disabled_flag == 1 {
 		return error('用户已被禁用')
 	}
+	println('33334444')
 	login_user.login_pwd = ''
-	login_user.make_token()
+	make_token(mut login_user)
+	println('33334444555')
 
 	return login_user
 }

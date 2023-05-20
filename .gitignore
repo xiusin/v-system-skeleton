@@ -23,3 +23,7 @@ bin/
 *.db
 *.js
 /uploads/
+*.log
+/typescript-ant-design-vue3/yarn.lock
+*.zip
+/v-system-skeleton

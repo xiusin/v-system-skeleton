@@ -2,7 +2,12 @@ module entities
 
 import math
 import db.sqlite
+import xiusin.very
 
+// TODO
+// - 支持对象类型自动解析
+// - 支持字段过滤
+// - 多功能语句构建
 [heap]
 pub struct Builder {
 mut:
@@ -103,30 +108,33 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
 	mut collection := []T{}
 	for it in items {
-		item := T{}
-		for idx, sel_field in info.fields {
-			$for field in T.fields {
-				if sel_field.ends_with('.' + field.name) {
-					$if field.typ is string {
-						item.$(field.name) = it.vals[idx].str()
-					} $else $if field.typ is int {
-						item.$(field.name) = it.vals[idx].int()
-					} $else $if field.typ is i8 {
-						item.$(field.name) = it.vals[idx].i8()
-					} $else $if field.typ is i64 {
-						item.$(field.name) = it.vals[idx].i64()
-					} $else $if field.typ is i16 {
-						item.$(field.name) = it.vals[idx].i16()
-					} $else $if field.typ is bool {
-						item.$(field.name) = it.vals[idx].bool()
-					}
-				}
-			}
-		}
-		collection << item
+		collection << info.row_to_item[T](it)
 	}
-
 	return collection
+}
+
+pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
+	item := T{}
+	mut idx := 0
+	$for field in T.fields {
+		if field.is_pub && !field.attrs.contains('build: skip') && !field.attrs.contains('sql: -') {
+			$if field.typ is string {
+				item.$(field.name) = it.vals[idx].str()
+			} $else $if field.typ is int {
+				item.$(field.name) = it.vals[idx].int()
+			} $else $if field.typ is i8 {
+				item.$(field.name) = it.vals[idx].i8()
+			} $else $if field.typ is i64 {
+				item.$(field.name) = it.vals[idx].i64()
+			} $else $if field.typ is i16 {
+				item.$(field.name) = it.vals[idx].i16()
+			} $else $if field.typ is bool {
+				item.$(field.name) = it.vals[idx].bool()
+			}
+			idx++
+		}
+	}
+	return item
 }
 
 pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []sqlite.Row) !Paginator[T] {
@@ -167,19 +175,31 @@ pub fn (mut info Builder) table(table string) &Builder {
 	return info
 }
 
+pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
+	db := &sqlite.DB(ctx.di.get[sqlite.DB]('db')!)
+	data_items, code := db.exec(query)
+	if code != 101 {
+		return db.error_message(code, query)
+	}
+	return info.row_to_collection[T](data_items)
+}
+
 // get_entity_fields 获取table 字段
-fn (mut info Builder) get_entity_fields[E]() &Builder {
-	$for attr in E.attributes {
+fn (mut info Builder) get_entity_fields[T]() &Builder {
+	$for attr in T.attributes {
 		if attr.name == 'table' && attr.has_arg && attr.arg.len != 0 {
 			info.table = attr.arg
 		}
 	}
-	$for field in E.fields {
+	$for field in T.fields {
 		if field.is_pub && !field.attrs.contains('build: skip') {
 			if field.attrs.len == 0 {
 				info.fields << info.table + '.' + field.name
 			} else {
 				for field_attr_item in field.attrs {
+					if field_attr_item == 'sql: -' {
+						continue
+					}
 					if field_attr_item.starts_with('sql: ') && !field.attrs.contains('primary') {
 						info.fields << info.table + '.' +
 							field_attr_item.substr(5, field_attr_item.len)
