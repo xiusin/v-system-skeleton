@@ -8,7 +8,7 @@ import xiusin.very.di
 import xiusin.vcolor
 
 fn main() {
-	mut app := very.new(very.default_configuration())
+	mut app := very.new(port: 8089)
 	app.recover_handler = handlers.recover
 
 	mut db := config.get_db()!

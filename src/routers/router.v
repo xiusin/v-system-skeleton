@@ -8,7 +8,7 @@ pub fn register_router(mut app very.Application) {
 	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
 
 	app.statics('/uploads', 'uploads')
-	app.statics('/dist/', 'typescript-ant-design-vue3/dist/', 'index.html')
+	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
 	// app.mount[handlers.App]()
 	app.post('/login', handlers.login)
 	app.get('/login/logout', handlers.logout)

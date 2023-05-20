@@ -81,7 +81,7 @@ v -prod `pwd` -o v-system-skeleton
 ```
 访问项目，打开浏览器，输入以下地址：
 ```shell
-http://localhost:8080/dist/#/
+http://localhost:8089/manages/#/
 
 账号: admin
 密码: 123456
