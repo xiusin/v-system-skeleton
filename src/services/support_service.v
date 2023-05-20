@@ -37,6 +37,24 @@ pub fn support_change_log_query(mut ctx very.Context) !entities.Paginator[entiti
 	}, 'public_date DESC')!
 }
 
+pub fn support_login_log_query(mut ctx very.Context) !entities.Paginator[entities.LoginLog] {
+	return base_query[entities.LoginLog](mut ctx, fn [mut ctx] () ![]string {
+		query_dto := ctx.body_parse[dto.LoginLogDto]()!
+		mut where := []string{}
+		if query_dto.start_date.len > 0 {
+			where << '(create_time >= "${query_dto.start_date}" AND create_time <= "${query_dto.end_date} 23:59:59")'
+		}
+		if query_dto.user_name.len > 0 {
+			where << '(user_name like "%' + query_dto.user_name + '%")'
+		}
+		if query_dto.ip.len > 0 {
+			where << '(ip like "%' + query_dto.ip + '%")'
+		}
+
+		return where
+	})!
+}
+
 pub fn support_feedback_query(mut ctx very.Context) !entities.Paginator[entities.Feedback] {
 	return base_query[entities.Feedback](mut ctx, fn [mut ctx] () ![]string {
 		query_dto := ctx.body_parse[dto.FeedbackDto]()!

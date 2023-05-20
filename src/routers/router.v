@@ -9,7 +9,7 @@ pub fn register_router(mut app very.Application) {
 
 	app.statics('/uploads', 'uploads')
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
-	app.mount[handlers.App]()
+	// app.mount[handlers.App]()
 	app.post('/login', handlers.login)
 	app.get('/login/logout', handlers.logout)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
@@ -86,8 +86,10 @@ pub fn register_router(mut app very.Application) {
 		support_api.get('/codeGenerator/table/getTableColumns/:tbl_name', handlers.code_generator_query_table_column)
 		support_api.get('/codeGenerator/table/getConfig/:tbl_name', handlers.code_generator_table_get_config)
 		support_api.post('/codeGenerator/table/updateConfig', handlers.code_generator_table_update_config)
+		support_api.post('/codeGenerator/code/preview', handlers.code_generator_code_preview)
 		support_api.post('/feedback/query', handlers.feedback_query)
 		support_api.post('/feedback/add', handlers.feedback_add)
+		support_api.post('/loginLog/page/query', handlers.login_log_page_query)
 	}
 	// mut oa_api := app.group('/oa')
 	// {

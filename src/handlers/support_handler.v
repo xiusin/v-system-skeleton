@@ -344,8 +344,23 @@ pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 pub fn code_generator_query_table_column(mut ctx very.Context) ! {
 	tbl_name := ctx.param('tbl_name')
 	mut builder := entities.new_builder(true)
-	columns := builder.query_raw[entities.CodeGeneratorConfigColumnSqlite](mut ctx, 'PRAGMA table_info(${tbl_name})')!
-	resp_success[[]entities.CodeGeneratorConfigColumnSqlite](mut ctx, data: columns)!
+	table_columns := builder.query_raw[entities.CodeGeneratorConfigColumnSqlite](mut ctx,
+		'PRAGMA table_info(${tbl_name})')!
+
+	mut columns := []entities.CodeGeneratorConfigColumn{cap: table_columns.len}
+
+	for table_column in table_columns {
+		columns << entities.CodeGeneratorConfigColumn{
+			column_comment: ''
+			column_key: if table_column.pk == 1 { 'PRI' } else { '' }
+			column_name: table_column.name
+			column_type: table_column.@type
+			data_type: table_column.@type
+			extra: table_column.dflt_value
+			is_nullable: if table_column.notnull == 1 { 'YES' } else { 'NO' }
+		}
+	}
+	resp_success[[]entities.CodeGeneratorConfigColumn](mut ctx, data: columns)!
 }
 
 pub fn code_generator_table_get_config(mut ctx very.Context) ! {
@@ -418,7 +433,18 @@ pub fn code_generator_table_update_config(mut ctx very.Context) ! {
 	resp_success[string](mut ctx, data: '')!
 }
 
+pub fn code_generator_code_preview(mut ctx very.Context) ! {
+	query_dto := ctx.body_parse[dto.CodePreviewDto]()!
+
+	resp_success[string](mut ctx, data: '')!
+}
+
 pub fn help_doc_query(mut ctx very.Context) ! {
+}
+
+pub fn login_log_page_query(mut ctx very.Context) ! {
+	paginator := services.support_login_log_query(mut ctx)!
+	resp_success[entities.Paginator[entities.LoginLog]](mut ctx, data: paginator)!
 }
 
 pub fn help_doc_catalog_update(mut ctx very.Context) ! {

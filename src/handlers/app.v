@@ -11,10 +11,17 @@ pub mut:
 }
 
 ['/index'; get]
-pub fn (mut app App) app_index() !&very.Response {
-	return app.text('hello app index')
+pub fn (mut app App) app_index() ! {
+	println('app index')
+	// app.text('hello app index')!
+	return error('hhh')
 }
 
-pub fn (mut app App) app_err() !&very.Response {
-	return error('xxx')
-}
+//
+// pub fn (mut app App) app_err() string {
+// 	 return 'hello world'
+// }
+//
+// pub fn (mut app App) app_int() int {
+// 	return 0
+// }

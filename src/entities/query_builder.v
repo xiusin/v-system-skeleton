@@ -117,7 +117,7 @@ pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
 	item := T{}
 	mut idx := 0
 	$for field in T.fields {
-		if field.is_pub && !field.attrs.contains('build: skip') {
+		if field.is_pub && !field.attrs.contains('build: skip') && !field.attrs.contains('sql: -') {
 			$if field.typ is string {
 				item.$(field.name) = it.vals[idx].str()
 			} $else $if field.typ is int {
@@ -197,6 +197,9 @@ fn (mut info Builder) get_entity_fields[T]() &Builder {
 				info.fields << info.table + '.' + field.name
 			} else {
 				for field_attr_item in field.attrs {
+					if field_attr_item == 'sql: -' {
+						continue
+					}
 					if field_attr_item.starts_with('sql: ') && !field.attrs.contains('primary') {
 						info.fields << info.table + '.' +
 							field_attr_item.substr(5, field_attr_item.len)

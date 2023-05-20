@@ -67,19 +67,21 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 
 pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
 	password := md5.hexhash(login_dto.password)
-	println('hhh')
 	user := sql conn {
 		select from entities.Employee where login_name == login_dto.username && login_pwd == password limit 1
 	}!
 	if user.len == 0 {
 		return error('不存在用户或密码错误')
 	}
+	println('3333')
 	mut login_user := user.first()
 	if login_user.disabled_flag == 1 {
 		return error('用户已被禁用')
 	}
+	println('33334444')
 	login_user.login_pwd = ''
 	make_token(mut login_user)
+	println('33334444555')
 
 	return login_user
 }

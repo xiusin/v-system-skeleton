@@ -95,3 +95,19 @@ pub mut:
 	public_date_begin string [json: 'publicDateBegin']
 	public_date_end   string [json: 'publicDateEnd']
 }
+
+pub struct LoginLogDto {
+pub mut:
+	page_num   int    [json: 'pageNum']
+	page_size  int    [json: 'pageSize']
+	user_name  string [json: 'userName']
+	ip         string
+	start_date string [json: 'startDate']
+	end_date   string [json: 'endDate']
+}
+
+pub struct CodePreviewDto {
+pub mut:
+	table_name    string [json: 'tableName']
+	template_file string [json: 'templateFile']
+}
