@@ -42,7 +42,7 @@ pub fn menu_batch_delete(mut ctx very.Context) ! {
 		}!
 	}
 
-	resp_success[Empty](mut ctx, data: Empty{})!
+	resp_success[string](mut ctx, data: '')!
 }
 
 pub fn menu_tree(mut ctx very.Context) ! {

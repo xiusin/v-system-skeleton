@@ -7,9 +7,6 @@ import rand
 
 const time_format = 'YYYY-MM-DD HH:mm:ss'
 
-pub struct Empty {
-}
-
 [params]
 pub struct Resp[T] {
 pub mut:
@@ -68,11 +65,10 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 }
 
 pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
-	dump(ctx.err())
-	ctx.json[Resp[Empty]](Resp[Empty]{
+	ctx.json[Resp[string]](Resp[string]{
 		code: 500
 		ok: false
 		msg: ctx.err().msg()
-		data: Empty{}
+		data: ''
 	})
 }

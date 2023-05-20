@@ -39,7 +39,7 @@ V语言驱动，快速编译及响应，保证系统的高性能、低延迟。�
 持续优化代码结构，使得项目更精简、更易用、更具扩展性，内置封装查询构造器可以更优雅地查询数据。我们将持续迭代，为您提供更好的产品和服务。
 
 # 技术架构
-- 后端：V语言 + Very框架 + Sqlite数据库
+- 后端：V语言 + Very框架 + Sqlite3数据库
 - 前端：Vue3 + TypeScript + Ant Design Vue
 # 快速开始
 ## 环境要求
@@ -49,45 +49,42 @@ V语言驱动，快速编译及响应，保证系统的高性能、低延迟。�
 ## 安装步骤
 ### 克隆项目代码到本地：
 ```shell
-git clone https://github.com/your-username/your-project.git
+git clone https://github.com/xiusin/v-system-skeleton.git
 ```
 进入项目目录，安装前端依赖：
 
 ```shell
-cd your-project/client
-npm install
+cd typescript-ant-design-vue3
+yarn
 ```
 
 构建前端页面：
 
 ```shell
-npm run build
+yarn prod
 ```
 
 返回项目根目录，安装后端依赖：
 
 ```shell
-cd ../server
-v install
-```
+cd ../src
+v install xiusin.very
 
-配置数据库连接信息，打开项目根目录下的 .env 文件，修改以下内容：
+v -prod `pwd` -o v-system-skeleton
 
-```ini
-DB_HOST=your-mysql-host
-DB_PORT=your-mysql-port
-DB_USER=your-mysql-username
-DB_PASSWORD=your-mysql-password
-DB_DATABASE=your-database-name
+# v -prod . -o v-system-skeleton 如果直接使用`.`作为当前目录无法编译通过 
 ```
 
 启动项目：
 ```shell
-v run main.v
+./v-system-skeleton
 ```
 访问项目，打开浏览器，输入以下地址：
 ```shell
-http://localhost:8080
+http://localhost:8080/dist/#/
+
+账号: admin
+密码: 123456
 ```
 
 # 贡献者

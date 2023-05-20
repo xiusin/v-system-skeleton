@@ -9,8 +9,9 @@ import json
 import services
 
 pub fn auth(mut ctx very.Context) ! {
-	if !ctx.path().ends_with('/login') && !ctx.path().starts_with('/uploads')
-		&& !ctx.path().starts_with('/app') && !ctx.path().starts_with('/manages') {
+	if !ctx.path().ends_with('/login') && !ctx.path().ends_with('/logout')
+		&& !ctx.path().starts_with('/uploads') && !ctx.path().starts_with('/app')
+		&& !ctx.path().starts_with('/manages') {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
 		if token.len == 0 {
 			ctx.stop()
@@ -19,7 +20,6 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		if !auth_verify(token) {
-			println('token.no_valid  = 0')
 			ctx.stop()
 			ctx.set_status(.forbidden)
 			return error('token无效')
@@ -40,7 +40,7 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		ctx.set('user_name', user.actual_name)
-		ctx.set('user_id', login_user_id)
+		ctx.set('user_id', user.id)
 		ctx.next()!
 		return
 	}
@@ -52,7 +52,6 @@ fn auth_verify(token string) bool {
 		return false
 	}
 	token_split := token.split('.')
-
 	signature_mirror := hmac.new(config.get_secret_key().bytes(), '${token_split[0]}.${token_split[1]}'.bytes(),
 		sha256.sum, sha256.block_size).bytestr().bytes()
 
