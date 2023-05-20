@@ -11,7 +11,7 @@ import services
 pub fn auth(mut ctx very.Context) ! {
 	if !ctx.path().ends_with('/login') && !ctx.path().ends_with('/logout')
 		&& !ctx.path().starts_with('/uploads') && !ctx.path().starts_with('/app')
-		&& !ctx.path().starts_with('/dist') {
+		&& !ctx.path().starts_with('/manages') {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
 		if token.len == 0 {
 			ctx.stop()
