@@ -23,6 +23,7 @@ pub fn login(mut ctx very.Context) ! {
 		entities.Employee{}
 	}
 	println(login_user)
+	println(record.remark)
 	record.user_id = login_user.id
 	record.user_name = login_user.actual_name
 	record.user_type = 1
