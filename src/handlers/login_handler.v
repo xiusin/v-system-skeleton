@@ -9,8 +9,8 @@ import time
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
 	mut record := entities.LoginLog{
-		login_ip: ctx.client_ip()
-		user_agent: ctx.get_header(.user_agent) or { '' }
+		login_ip: ctx.req.client_ip()
+		user_agent: ctx.req.get_header(.user_agent) or { '' }
 		login_result: 1
 		remark: 'success'
 		update_time: time.now().custom_format(time_format)

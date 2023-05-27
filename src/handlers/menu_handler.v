@@ -26,7 +26,7 @@ pub fn menu_add(mut ctx very.Context) ! {
 }
 
 pub fn menu_batch_delete(mut ctx very.Context) ! {
-	for menu_id in ctx.query('menuIdList').split(',') {
+	for menu_id in ctx.req.query('menuIdList').split(',') {
 		if menu_id.int() == 0 {
 			continue
 		}

@@ -39,5 +39,5 @@ pub fn request_log(mut ctx very.Context) ! {
 		use_time += ' '.repeat(10 - use_time.len + 1)
 	}
 
-	println('[Very] ${time.now().format_rfc3339()} | ${status_color.sprint(ctx.writer().status_code.str())} | ${method_color.sprint(method)} | ${use_time} | ${ctx.path()} ')
+	println('[Very] ${time.now().format_rfc3339()} | ${status_color.sprint(ctx.writer().status_code.str())} | ${method_color.sprint(method)} | ${use_time} | ${ctx.req.path()} ')
 }

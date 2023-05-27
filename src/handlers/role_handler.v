@@ -44,8 +44,8 @@ pub fn role_query_employee(mut ctx very.Context) ! {
 }
 
 pub fn role_remove_employee(mut ctx very.Context) ! {
-	employee_id := ctx.query('employeeId').int()
-	role_id := ctx.query('roleId').int()
+	employee_id := ctx.req.query('employeeId').int()
+	role_id := ctx.req.query('roleId').int()
 
 	sql ctx.db {
 		delete from entities.RoleEmployee where role_id == role_id && employee_id == employee_id

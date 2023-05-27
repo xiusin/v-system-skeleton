@@ -12,15 +12,16 @@ pub fn access_log(mut ctx very.Context) ! {
 		operate_user_name: ''
 		@module: ''
 		content: ''
-		url: ctx.path()
+		url: ctx.req.path()
 		method: ctx.req.method.str()
 		param: ''
-		user_agent: ctx.header(.user_agent)
+		user_agent: ctx.req.get_header(.user_agent)!
 		success_flag: false
 		update_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
 	ctx.next()!
-	log.fail_reason = ctx.err().str()
+	err := ctx.err()!
+	log.fail_reason = err.str()
 }

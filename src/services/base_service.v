@@ -35,9 +35,9 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 	builder.model[T]()
 	where := build_where()!
 	builder.where(where.join(' AND '))
-	mut page_size := ctx.query('page_size').int()
+	mut page_size := ctx.req.query('page_size').int()
 	page_size = math.max[int](page_size, 1)
-	page_num := ctx.query('page_num').int()
+	page_num := ctx.req.query('page_num').int()
 	builder.limit(page_size, (page_num - 1) * page_size)
 	if orders.len == 0 {
 		builder.order_by_desc('id')

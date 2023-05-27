@@ -134,9 +134,9 @@ pub fn file_query_page(mut ctx very.Context) ! {
 }
 
 pub fn file_upload(mut ctx very.Context) ! {
-	folder := ctx.query('folder')
-	ctx.parse_form()!
-	mut files_ := ctx.file('file')!
+	folder := ctx.req.query('folder')
+	ctx.req.parse_form()!
+	mut files_ := ctx.req.file('file')!
 	if files_.len == 0 {
 		return error('不存在文件file')
 	}

@@ -65,10 +65,11 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 }
 
 pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
+	err := ctx.err() or { error('未知错误') }
 	ctx.json[Resp[string]](Resp[string]{
 		code: 500
 		ok: false
-		msg: ctx.err().msg()
+		msg: err.msg()
 		data: ''
 	})
 }
