@@ -30,7 +30,7 @@ pub mut:
 
 // base_query Q 接收参数请求
 pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders ...string) !entities.Paginator[T] {
-	db := ctx.di.get[sqlite.DB]('db')!
+	db := ctx.get_db[&sqlite.DB]()!
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	where := build_where()!

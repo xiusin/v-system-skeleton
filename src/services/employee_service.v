@@ -6,6 +6,7 @@ import orm
 import dto
 import crypto.md5
 import xiusin.very
+import db.sqlite
 
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
@@ -15,7 +16,8 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 		query_role_id := query_dto.role_id
 
 		if query_role_id > 0 {
-			employee_roles := sql ctx.db {
+			db := ctx.get_db[&sqlite.DB]()!
+			employee_roles := sql db {
 				select from entities.RoleEmployee where role_id == query_role_id
 			}!
 			mut employee_ids := []string{}
@@ -73,15 +75,12 @@ pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entiti
 	if user.len == 0 {
 		return error('不存在用户或密码错误')
 	}
-	println('3333')
 	mut login_user := user.first()
 	if login_user.disabled_flag == 1 {
 		return error('用户已被禁用')
 	}
-	println('33334444')
 	login_user.login_pwd = ''
 	make_token(mut login_user)
-	println('33334444555')
 
 	return login_user
 }

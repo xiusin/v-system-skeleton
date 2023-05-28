@@ -7,6 +7,7 @@ import crypto.sha256
 import config
 import json
 import services
+import db.sqlite
 
 pub fn auth(mut ctx very.Context) ! {
 	uri := ctx.req.path()
@@ -33,7 +34,7 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		login_user_id := jwt_payload.sub.int()
-		user := services.employee_info(ctx.db, login_user_id) or {
+		user := services.employee_info(ctx.get_db[&sqlite.DB]()!, login_user_id) or {
 			ctx.set_status(.forbidden)
 			ctx.stop()
 			return error('用户不能存在')
