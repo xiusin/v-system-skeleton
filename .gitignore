@@ -20,8 +20,6 @@ bin/
 .env
 
 # vweb and database
-*.db
-*.js
 /uploads/
 *.log
 /typescript-ant-design-vue3/yarn.lock

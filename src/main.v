@@ -4,14 +4,11 @@ import xiusin.very
 import config
 import routers
 import handlers
-import xiusin.vcolor
 import xiusin.very.di
 import db.sqlite
 
 fn main() {
 	mut app := very.new(port: 8089)
-	// app.pool_channel_slots = 1000
-	// app.worker_num = 1
 	app.recover_handler = handlers.recover
 
 	mut db_pool := very.new_pool(fn () &sqlite.DB {
@@ -30,6 +27,5 @@ fn main() {
 	// })
 
 	routers.register_router(mut app)
-	vcolor.hi_yellow('> It’s simple, but someone has to do it, so i came.')
 	app.run()
 }
