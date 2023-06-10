@@ -7,11 +7,12 @@ import crypto.sha256
 import config
 import json
 import services
+import db.sqlite
 
 pub fn auth(mut ctx very.Context) ! {
-	if !ctx.path().ends_with('/login') && !ctx.path().ends_with('/logout')
-		&& !ctx.path().starts_with('/uploads') && !ctx.path().starts_with('/app')
-		&& !ctx.path().starts_with('/manages') {
+	uri := ctx.req.path()
+	if !uri.ends_with('/login') && !uri.ends_with('/logout') && !uri.starts_with('/uploads')
+		&& !uri.starts_with('/app') && !uri.starts_with('/manages') {
 		token := ctx.req.header.get_custom('x-access-token') or { '' }
 		if token.len == 0 {
 			ctx.stop()
@@ -33,7 +34,7 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		login_user_id := jwt_payload.sub.int()
-		user := services.employee_info(ctx.db, login_user_id) or {
+		user := services.employee_info(ctx.get_db[&sqlite.DB]()!, login_user_id) or {
 			ctx.set_status(.forbidden)
 			ctx.stop()
 			return error('用户不能存在')

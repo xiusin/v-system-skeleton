@@ -5,7 +5,7 @@ import db.sqlite
 import xiusin.very
 
 pub fn get_department_map(mut ctx very.Context) !map[int]entities.Department {
-	db := ctx.di.get[sqlite.DB]('db')!
+	db := ctx.get_db[&sqlite.DB]()!
 	departments := sql db {
 		select from entities.Department
 	}!

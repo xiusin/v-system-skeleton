@@ -5,32 +5,35 @@ import dto
 import entities
 import services
 import time
+import db.sqlite
 
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
 	mut record := entities.LoginLog{
-		login_ip: ctx.client_ip()
-		user_agent: ctx.get_header(.user_agent) or { '' }
-		login_result: 1
+		login_ip: ctx.req.client_ip()
+		user_agent: ctx.req.get_header(.user_agent)
+		login_result: 0
 		remark: 'success'
 		update_time: time.now().custom_format(time_format)
 		create_time: time.now().custom_format(time_format)
 	}
 
-	login_user := services.employee_auth(ctx.db, login_dto) or {
-		record.login_result = 0
+	login_user := services.employee_auth(ctx.get_db[&sqlite.DB]()!, login_dto) or {
+		record.login_result = 1
 		record.remark = '${err}'
 		entities.Employee{}
 	}
+
 	record.user_id = login_user.id
 	record.user_name = login_user.actual_name
 	record.user_type = 1
 
-	menus := sql ctx.db {
+	db := ctx.get_db[&sqlite.DB]()!
+	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
 
-	sql ctx.db {
+	sql db {
 		insert record into entities.LoginLog
 	}!
 
@@ -49,8 +52,9 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	login_user := services.employee_info(ctx.db, user_id, true)!
-	menus := sql ctx.db {
+	login_user := services.employee_info(ctx.get_db[&sqlite.DB]()!, user_id, true)!
+	db := ctx.get_db[&sqlite.DB]()!
+	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
 	resp_success[dto.LoginResponseDto](mut ctx,

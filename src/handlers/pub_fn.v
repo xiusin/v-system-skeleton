@@ -49,7 +49,7 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 		return error('check_entity_exists: 请确定最少包含一个条件')
 	}
 
-	db := ctx.di.get[sqlite.DB]('db')!
+	db := ctx.get_db[&sqlite.DB]()!
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	builder.limit(1)
@@ -64,11 +64,11 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 	}
 }
 
-pub fn recover(mut ctx very.Context) ! { // 统一错误处理函数
+pub fn recover(mut ctx very.Context, err IError) ! { // 统一错误处理函数
 	ctx.json[Resp[string]](Resp[string]{
 		code: 500
 		ok: false
-		msg: ctx.err().msg()
+		msg: err.str()
 		data: ''
 	})
 }

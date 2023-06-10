@@ -3,6 +3,7 @@ module services
 import entities
 import xiusin.very
 import dto
+import db.sqlite
 
 pub fn support_config_query(mut ctx very.Context) !entities.Paginator[entities.Config] {
 	return base_query[entities.Config](mut ctx, fn [mut ctx] () ![]string {
@@ -92,7 +93,8 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 }
 
 pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
-	return sql ctx.db {
+	db := ctx.get_db[&sqlite.DB]()!
+	return sql db {
 		select from entities.DictKey order by id desc
 	}!
 }

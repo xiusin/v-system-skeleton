@@ -98,9 +98,9 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 		query += ' LIMIT 1'
 	}
 
-	if info.debug {
-		println(query)
-	}
+	// if info.debug {
+	// 	println(query)
+	// }
 
 	return query
 }
@@ -114,7 +114,7 @@ pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
 }
 
 pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
-	item := T{}
+	mut item := T{}
 	mut idx := 0
 	$for field in T.fields {
 		if field.is_pub && !field.attrs.contains('build: skip') && !field.attrs.contains('sql: -') {
@@ -176,7 +176,7 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	db := &sqlite.DB(ctx.di.get[sqlite.DB]('db')!)
+	db := ctx.get_db[&sqlite.DB]()!
 	data_items, code := db.exec(query)
 	if code != 101 {
 		return db.error_message(code, query)

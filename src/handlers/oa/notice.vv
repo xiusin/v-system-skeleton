@@ -58,7 +58,7 @@ pub fn (mut app Notice) add() !very.Response {
 pub fn (mut app Notice) delete() !very.Response {
 	id := app.ctx.param('id').int()
 	println(id)
-	sql app.ctx.db {
+	sql app.ctx.get_db[&sqlite.DB]()! {
 		update entities.Notice set deleted_flag = 1, update_time = time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 		where id == id
 	}!

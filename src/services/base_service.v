@@ -30,14 +30,14 @@ pub mut:
 
 // base_query Q 接收参数请求
 pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders ...string) !entities.Paginator[T] {
-	db := ctx.di.get[sqlite.DB]('db')!
+	db := ctx.get_db[&sqlite.DB]()!
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	where := build_where()!
 	builder.where(where.join(' AND '))
-	mut page_size := ctx.query('page_size').int()
+	mut page_size := ctx.req.query('page_size').int()
 	page_size = math.max[int](page_size, 1)
-	page_num := ctx.query('page_num').int()
+	page_num := ctx.req.query('page_num').int()
 	builder.limit(page_size, (page_num - 1) * page_size)
 	if orders.len == 0 {
 		builder.order_by_desc('id')
