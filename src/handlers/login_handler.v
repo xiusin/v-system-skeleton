@@ -12,17 +12,18 @@ pub fn login(mut ctx very.Context) ! {
 	mut record := entities.LoginLog{
 		login_ip: ctx.req.client_ip()
 		user_agent: ctx.req.get_header(.user_agent)
-		login_result: 1
+		login_result: 0
 		remark: 'success'
 		update_time: time.now().custom_format(time_format)
 		create_time: time.now().custom_format(time_format)
 	}
 
 	login_user := services.employee_auth(ctx.get_db[&sqlite.DB]()!, login_dto) or {
-		record.login_result = 0
+		record.login_result = 1
 		record.remark = '${err}'
 		entities.Employee{}
 	}
+
 	record.user_id = login_user.id
 	record.user_name = login_user.actual_name
 	record.user_type = 1

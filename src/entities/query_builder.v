@@ -114,7 +114,7 @@ pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
 }
 
 pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
-	item := T{}
+	mut item := T{}
 	mut idx := 0
 	$for field in T.fields {
 		if field.is_pub && !field.attrs.contains('build: skip') && !field.attrs.contains('sql: -') {
