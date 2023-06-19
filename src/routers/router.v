@@ -10,7 +10,6 @@ pub fn register_router(mut app very.Application) {
 
 	app.statics('/uploads', 'uploads')
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
-	// app.mount[handlers.App]()
 	app.post('/login', handlers.login)
 	app.get('/login/logout', handlers.logout)
 	app.get('/login/getLoginInfo', handlers.get_login_info)

@@ -11,6 +11,7 @@ fn main() {
 	mut app := very.new(port: 8089)
 	app.recover_handler = handlers.recover
 
+	// add db pool, wait test
 	mut db_pool := very.new_pool(fn () &sqlite.DB {
 		db := config.get_db()
 		return &db
