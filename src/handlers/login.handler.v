@@ -32,18 +32,15 @@ pub fn login(mut ctx very.Context) ! {
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
-
 	sql db {
 		insert record into entities.LoginLog
 	}!
-
-	if record.login_result == 0 {
+	if record.login_result == 1 {
 		return error(record.remark)
 	}
 
-	resp_success[dto.LoginResponseDto](mut ctx,
-		data: dto.new_login_response_dto[entities.Employee](login_user, menus)
-	)!
+	resp_dto := dto.new_login_response_dto[entities.Employee](login_user, menus)
+	resp_success[dto.LoginResponseDto](mut ctx,data: resp_dto)!
 }
 
 pub fn logout(mut ctx very.Context) ! {

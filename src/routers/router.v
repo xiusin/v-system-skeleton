@@ -5,8 +5,8 @@ import xiusin.very
 import middlewares
 
 pub fn register_router(mut app very.Application) {
-	// middlewares.request_log,
-	app.use(middlewares.cors, middlewares.query, middlewares.auth)
+	app.use(middlewares.request_log, middlewares.access_log, middlewares.cors, middlewares.query,
+		middlewares.auth)
 
 	app.statics('/uploads', 'uploads')
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')

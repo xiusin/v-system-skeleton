@@ -16,7 +16,6 @@ pub fn role_get_all(mut ctx very.Context) ! {
 }
 
 pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
-	println('role_get_role_selected_menu')
 	role_id := ctx.param('id').int()
 	if role_id == 0 {
 		return error('no role')
