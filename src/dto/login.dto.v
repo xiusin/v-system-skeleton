@@ -46,7 +46,7 @@ pub struct Authority {
 }
 
 pub fn new_login_response_dto[T](user T, menus []entities.Menu) LoginResponseDto {
-	mut dto := LoginResponseDto{ // FIXME 使用反射居然可以直接修改非mut的值
+	mut dto := LoginResponseDto{
 		menu_list: menus
 	}
 	$for field in T.fields {
