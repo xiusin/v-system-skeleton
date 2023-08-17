@@ -177,10 +177,7 @@ pub fn (mut info Builder) table(table string) &Builder {
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
 	db := ctx.get_db[&sqlite.DB]()!
-	data_items, code := db.exec(query)
-	if code != 101 {
-		return db.error_message(code, query)
-	}
+	data_items := db.exec(query)!
 	return info.row_to_collection[T](data_items)
 }
 

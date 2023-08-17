@@ -46,8 +46,8 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 			builder.order_by(order)
 		}
 	}
-	count := db.q_int(builder.to_sql(true))
-	users, _ := db.exec(builder.to_sql())
+	count := db.q_int(builder.to_sql(true))!
+	users := db.exec(builder.to_sql())!
 	paginator := builder.get_page[T](count, page_num, page_num, users)!
 	return paginator
 }

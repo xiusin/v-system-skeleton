@@ -59,7 +59,7 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 	})
 
 	builder.where(wheres_.join(' AND '))
-	if db.q_int(builder.to_sql(true)) > 0 { // TODO SQL拼错时无异常!
+	if db.q_int(builder.to_sql(true))! > 0 { // TODO SQL拼错时无异常!
 		return error('已经存在相同的数据')
 	}
 }

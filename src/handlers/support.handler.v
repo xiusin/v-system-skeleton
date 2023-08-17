@@ -339,7 +339,7 @@ pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 	mut builder := entities.new_builder(true)
 	tables := builder.query_raw[entities.SqliteMaster](mut ctx, sql)!
 	db := ctx.get_db[&sqlite.DB]()!
-	count := db.q_int(count_sql)
+	count := db.q_int(count_sql)!
 
 	mut cgct := []entities.CodeGeneratorConfigTable{cap: tables.len}
 	for table in tables {

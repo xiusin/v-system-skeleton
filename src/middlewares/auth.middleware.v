@@ -46,6 +46,7 @@ pub fn auth(mut ctx very.Context) ! {
 		return
 	}
 	ctx.next()!
+	ctx.logger.error('anth end')
 }
 
 fn auth_verify(token string) bool {

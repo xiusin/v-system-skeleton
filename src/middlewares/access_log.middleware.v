@@ -6,7 +6,7 @@ import time
 import db.sqlite
 
 pub fn access_log(mut ctx very.Context) ! {
-	login_user_id := ctx.value('user_id')! as int
+	login_user_id := ctx.value('user_id', 0)! as int
 	mut log := entities.AccessLog{
 		operate_user_id: login_user_id
 		operate_user_type: 0

@@ -102,7 +102,7 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 		return error('new password error')
 	}
 
-	login_user_id := ctx.value('user_id')! as int
+	login_user_id := ctx.value('user_id', 0)! as int
 
 	db := ctx.get_db[&sqlite.DB]()!
 	users := sql db {

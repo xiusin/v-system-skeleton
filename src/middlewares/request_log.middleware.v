@@ -17,9 +17,7 @@ pub fn request_log(mut ctx very.Context) ! {
 
 	attrs := [vcolor.Attribute.fg_white, vcolor.Attribute.bold, methods[ctx.req.method]]
 	mut method_color := vcolor.new(...attrs)
-
 	ctx.next()!
-
 	mut method := ctx.req.method.str()
 	if method.len < 6 {
 		method += ' '.repeat(6 - method.len + 1)
