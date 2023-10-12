@@ -70,7 +70,7 @@ Return to the root directory of the project and install the back-end dependencie
 cd ../src
 v install xiusin.very
 
-v -prod `pwd` -o v-system-skeleton
+v -d net_blocking_sockets -prod `pwd` -o v-system-skeleton
 
 # v -prod . -o v-system-skeleton If `.` is used directly as the current directory, the compilation cannot pass.
 ```
