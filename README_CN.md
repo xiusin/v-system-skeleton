@@ -70,7 +70,7 @@ yarn prod
 cd ../src
 v install xiusin.very
 
-v -prod `pwd` -o v-system-skeleton
+v -d net_blocking_sockets -prod `pwd` -o v-system-skeleton
 
 # v -prod . -o v-system-skeleton 如果直接使用`.`作为当前目录无法编译通过 
 ```
