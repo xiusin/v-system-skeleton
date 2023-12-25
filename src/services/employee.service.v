@@ -16,7 +16,7 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 		query_role_id := query_dto.role_id
 
 		if query_role_id > 0 {
-			db := ctx.get_db[&sqlite.DB]()!
+			db := ctx.di[sqlite.DB]('db')!
 			employee_roles := sql db {
 				select from entities.RoleEmployee where role_id == query_role_id
 			}!

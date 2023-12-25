@@ -46,11 +46,11 @@ pub struct Authority {
 }
 
 pub fn new_login_response_dto[T](user T, menus []entities.Menu) LoginResponseDto {
-	mut dto := LoginResponseDto{
+	mut dto_ := LoginResponseDto{
 		menu_list: menus
 	}
 	$for field in T.fields {
-		dto.$(field.name) = user.$(field.name)
+		dto_.$(field.name) = user.$(field.name)
 	}
 	mut authorities := []Authority{}
 
@@ -62,6 +62,6 @@ pub fn new_login_response_dto[T](user T, menus []entities.Menu) LoginResponseDto
 		}
 	}
 
-	dto.authorities = authorities
-	return dto
+	dto_.authorities = authorities
+	return dto_
 }

@@ -8,7 +8,7 @@ import xiusin.very
 // - 支持对象类型自动解析
 // - 支持字段过滤
 // - 多功能语句构建
-[heap]
+@[heap]
 pub struct Builder {
 mut:
 	table      string
@@ -23,15 +23,15 @@ mut:
 	debug bool
 }
 
-[params]
+@[params]
 pub struct Paginator[T] {
 pub mut:
-	empty        bool [json: 'emptyFlag']
-	total        int  [json: 'total']
-	current_page int  [json: 'pageNum']
-	page_size    int  [json: 'pageSize']
-	pages        int  [json: 'pages']
-	items        []T  [json: 'list']
+	empty        bool @[json: 'emptyFlag']
+	total        int  @[json: 'total']
+	current_page int  @[json: 'pageNum']
+	page_size    int  @[json: 'pageSize']
+	pages        int  @[json: 'pages']
+	items        []T  @[json: 'list']
 }
 
 pub fn new_builder(debug ...bool) Builder {
@@ -176,7 +176,7 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	data_items := db.exec(query)!
 	return info.row_to_collection[T](data_items)
 }

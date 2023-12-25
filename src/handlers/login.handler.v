@@ -18,7 +18,7 @@ pub fn login(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	login_user := services.employee_auth(ctx.get_db[&sqlite.DB]()!, login_dto) or {
+	login_user := services.employee_auth(ctx.di[sqlite.DB]('db')!, login_dto) or {
 		record.login_result = 1
 		record.remark = '${err}'
 		entities.Employee{}
@@ -28,7 +28,7 @@ pub fn login(mut ctx very.Context) ! {
 	record.user_name = login_user.actual_name
 	record.user_type = 1
 
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
@@ -40,7 +40,7 @@ pub fn login(mut ctx very.Context) ! {
 	}
 
 	resp_dto := dto.new_login_response_dto[entities.Employee](login_user, menus)
-	resp_success[dto.LoginResponseDto](mut ctx,data: resp_dto)!
+	resp_success[dto.LoginResponseDto](mut ctx, data: resp_dto)!
 }
 
 pub fn logout(mut ctx very.Context) ! {
@@ -49,8 +49,8 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	login_user := services.employee_info(ctx.get_db[&sqlite.DB]()!, user_id, true)!
-	db := ctx.get_db[&sqlite.DB]()!
+	login_user := services.employee_info(ctx.di[sqlite.DB]('db')!, user_id, true)!
+	db := ctx.di[sqlite.DB]('db')!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!

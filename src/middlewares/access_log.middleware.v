@@ -22,7 +22,7 @@ pub fn access_log(mut ctx very.Context) ! {
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 
 	defer {
 		sql db {
@@ -34,6 +34,4 @@ pub fn access_log(mut ctx very.Context) ! {
 		log.fail_reason = err.str()
 		return err
 	}
-
-
 }

@@ -93,7 +93,7 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 }
 
 pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	return sql db {
 		select from entities.DictKey order by id desc
 	}!

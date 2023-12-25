@@ -8,15 +8,15 @@ import dto
 import services
 import handlers
 
-[group: '/notice']
+@[group: '/notice']
 pub struct Notice {
 	very.Context
 pub mut:
-	db  &sqlite.DB    [inject: 'db'] = unsafe { nil }
+	db  &sqlite.DB = unsafe { nil }    @[inject: 'db']
 	ctx &very.Context = unsafe { nil }
 }
 
-['/query'; post]
+@['/query'; post]
 pub fn (mut app Notice) query() !very.Response {
 	paginator := services.base_query[entities.Notice](mut app.ctx, fn [mut app] () ![]string {
 		query_dto := app.ctx.body_parse[dto.NoticeRequestDto]()!
@@ -49,16 +49,16 @@ pub fn (mut app Notice) query() !very.Response {
 	return error('xxxx')
 }
 
-['/add'; post]
+@['/add'; post]
 pub fn (mut app Notice) add() !very.Response {
 	return error('xxx')
 }
 
-['/delete/:id'; get]
+@['/delete/:id'; get]
 pub fn (mut app Notice) delete() !very.Response {
 	id := app.ctx.param('id').int()
 	println(id)
-	sql app.ctx.get_db[&sqlite.DB]()! {
+	sql app.ctx.di[sqlite.DB]('db')! {
 		update entities.Notice set deleted_flag = 1, update_time = time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 		where id == id
 	}!
@@ -66,7 +66,7 @@ pub fn (mut app Notice) delete() !very.Response {
 	return error('xxxx')
 }
 
-['/getUpdateVO/:id'; get]
+@['/getUpdateVO/:id'; get]
 pub fn (mut app Notice) info() !very.Response {
 	println('hello index')
 	return app.text('hello app index')

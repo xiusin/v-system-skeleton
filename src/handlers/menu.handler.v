@@ -5,7 +5,7 @@ import entities
 import db.sqlite
 
 pub fn menu_query(mut ctx very.Context) ! {
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	menus := sql db {
 		select from entities.Menu order by sort desc
 	}!
@@ -17,11 +17,11 @@ pub fn menu_auth_url(mut ctx very.Context) ! {
 
 pub fn menu_add(mut ctx very.Context) ! {
 	menu := ctx.body_parse[entities.Menu]()!
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	sql db {
 		insert menu into entities.Menu
 	}!
-	last_id := ctx.get_db[&sqlite.DB]()!.last_id()
+	last_id := ctx.di[sqlite.DB]('db')!.last_id()
 	new_menu := sql db {
 		select from entities.Menu where id == last_id limit 1
 	}!
@@ -34,7 +34,7 @@ pub fn menu_batch_delete(mut ctx very.Context) ! {
 			continue
 		}
 		// 判断是否存在下级
-		db := ctx.get_db[&sqlite.DB]()!
+		db := ctx.di[sqlite.DB]('db')!
 		menu := sql db {
 			select from entities.Menu where parent_id == menu_id.int() limit 1
 		}!
@@ -50,7 +50,7 @@ pub fn menu_batch_delete(mut ctx very.Context) ! {
 }
 
 pub fn menu_tree(mut ctx very.Context) ! {
-	db := ctx.get_db[&sqlite.DB]()!
+	db := ctx.di[sqlite.DB]('db')!
 	resp_success[[]entities.MenuTree](mut ctx,
 		data: entities.build_tree[entities.Menu, entities.MenuTree](sql db {
 			select from entities.Menu
