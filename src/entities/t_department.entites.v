@@ -1,26 +1,26 @@
 module entities
 
-[table: 't_department']
+@[table: 't_department']
 pub struct Department {
 pub mut:
-	id          int    [json: 'departmentId'; primary; sql: serial]
+	id          int    @[json: 'departmentId'; primary; sql: serial]
 	name        string
-	manager_id  int    [json: 'managerId']
-	parent_id   int    [json: 'parentId']
+	manager_id  int    @[json: 'managerId']
+	parent_id   int    @[json: 'parentId']
 	sort        int
-	update_time string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
-	create_time string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
+	update_time string @[default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
+	create_time string @[default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 }
 
 pub struct DepartmentTree {
 pub mut:
-	id          int    [json: 'departmentId'; primary; sql: serial]
+	id          int    @[json: 'departmentId'; primary; sql: serial]
 	name        string
-	manager_id  int    [json: 'managerId']
-	parent_id   int    [json: 'parentId']
+	manager_id  int    @[json: 'managerId']
+	parent_id   int    @[json: 'parentId']
 	sort        int
-	update_time string [default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
-	create_time string [default: 'CURRENT_TIMESTAMP'; json: 'createTime']
+	update_time string @[default: 'CURRENT_TIMESTAMP'; json: 'updateTime']
+	create_time string @[default: 'CURRENT_TIMESTAMP'; json: 'createTime']
 
 	// --- ↑ copy
 	children []DepartmentTree
