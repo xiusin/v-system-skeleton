@@ -454,7 +454,7 @@ pub fn code_generator_table_update_config(mut ctx very.Context) ! {
 }
 
 pub fn code_generator_code_preview(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.CodePreviewDto]()!
+	_ = ctx.body_parse[dto.CodePreviewDto]()!
 
 	resp_success[string](mut ctx, data: '')!
 }
