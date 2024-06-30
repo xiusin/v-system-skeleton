@@ -176,12 +176,10 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	data_items := db.exec(query)!
 	return info.row_to_collection[T](data_items)
@@ -225,12 +223,10 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 		sql_[0]
 	}
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 
 	row := db.exec_one(query_sql)!

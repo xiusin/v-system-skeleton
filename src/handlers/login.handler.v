@@ -18,12 +18,10 @@ pub fn login(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 
 	login_user := services.employee_auth(db, login_dto) or {
@@ -56,12 +54,10 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	login_user := services.employee_info(db, user_id, true)!
 	menus := sql db {

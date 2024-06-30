@@ -5,12 +5,10 @@ import entities
 import db.mysql
 
 pub fn menu_query(mut ctx very.Context) ! {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	menus := sql db {
 		select from entities.Menu order by sort desc
@@ -23,12 +21,10 @@ pub fn menu_auth_url(mut ctx very.Context) ! {
 
 pub fn menu_add(mut ctx very.Context) ! {
 	menu := ctx.body_parse[entities.Menu]()!
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		insert menu into entities.Menu
@@ -41,18 +37,16 @@ pub fn menu_add(mut ctx very.Context) ! {
 }
 
 pub fn menu_batch_delete(mut ctx very.Context) ! {
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	for menu_id in ctx.req.query('menuIdList').split(',') {
 		if menu_id.int() == 0 {
 			continue
 		}
 		// 判断是否存在下级
-		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
-		defer {
-			fn [mut db, mut ctx] () {
-				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-				pp.release(db)
-			}()
-		}
 		menu := sql db {
 			select from entities.Menu where parent_id == menu_id.int() limit 1
 		}!
@@ -68,12 +62,10 @@ pub fn menu_batch_delete(mut ctx very.Context) ! {
 }
 
 pub fn menu_tree(mut ctx very.Context) ! {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	resp_success[[]entities.MenuTree](mut ctx,
 		data: entities.build_tree[entities.Menu, entities.MenuTree](sql db {

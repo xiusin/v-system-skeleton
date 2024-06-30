@@ -71,12 +71,10 @@ pub fn employee_query(mut ctx very.Context) ! {
 pub fn employee_reset_password(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
 	password := rand_str(8)
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		update entities.Employee set login_pwd = md5.hexhash(password), update_time = time.now().custom_format(time_format)
@@ -87,12 +85,10 @@ pub fn employee_reset_password(mut ctx very.Context) ! {
 
 pub fn employee_update_disabled(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	employees := sql db {
 		select from entities.Employee where id == id limit 1
@@ -116,12 +112,10 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 
 	login_user_id := ctx.value('user_id', 0)! as int
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	users := sql db {
 		select from entities.Employee where id == login_user_id limit 1
@@ -140,12 +134,10 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 }
 
 pub fn employee_query_all(mut ctx very.Context) ! {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	employees := sql db {
 		select from entities.Employee
@@ -155,12 +147,10 @@ pub fn employee_query_all(mut ctx very.Context) ! {
 
 pub fn employee_add(mut ctx very.Context) ! {
 	mut employee := ctx.body_parse[entities.Employee]()!
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	password := services.employee_add(db, mut employee)!
 
@@ -176,14 +166,14 @@ pub fn employee_add(mut ctx very.Context) ! {
 
 pub fn employee_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
+
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
+
 	for id in ids {
-		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
-		defer {
-			fn [mut db, mut ctx] () {
-				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-				pp.release(db)
-			}()
-		}
 		sql db {
 			delete from entities.Employee where id == id
 			delete from entities.RoleEmployee where employee_id == id
@@ -195,14 +185,12 @@ pub fn employee_delete(mut ctx very.Context) ! {
 pub fn employee_update_batch_department(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.EmployeeBatchDepartmentDto]()!
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	for employee_id in query_dto.employee_id_list {
-		defer {
-			fn [mut db, mut ctx] () {
-				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-				pp.release(db)
-			}()
-		}
 		sql db {
 			update entities.Employee set department_id = query_dto.department_id, update_time = time.now().custom_format(time_format)
 			where id == employee_id
@@ -214,12 +202,10 @@ pub fn employee_update_batch_department(mut ctx very.Context) ! {
 pub fn employee_update(mut ctx very.Context) ! {
 	employee := ctx.body_parse[dto.EmployeeRespDto]()!
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		update entities.Employee set actual_name = employee.actual_name, login_name = employee.login_name,

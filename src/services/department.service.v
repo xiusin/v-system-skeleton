@@ -5,12 +5,10 @@ import xiusin.very
 import db.mysql
 
 pub fn get_department_map(mut ctx very.Context) !map[int]entities.Department {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	departments := sql db {
 		select from entities.Department

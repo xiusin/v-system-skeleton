@@ -93,12 +93,10 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 }
 
 pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	return sql db {
 		select from entities.DictKey order by id desc

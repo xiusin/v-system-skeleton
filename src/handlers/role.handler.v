@@ -7,12 +7,10 @@ import time
 import db.mysql
 
 pub fn role_get_all(mut ctx very.Context) ! {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	roles := sql db {
 		select from entities.Role
@@ -31,12 +29,10 @@ pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
 		role_id: role_id
 	}
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	role_menus := sql db {
 		select from entities.RoleMenu where role_id == role_id
@@ -62,12 +58,10 @@ pub fn role_remove_employee(mut ctx very.Context) ! {
 	employee_id := ctx.req.query('employeeId').int()
 	role_id := ctx.req.query('roleId').int()
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		delete from entities.RoleEmployee where role_id == role_id && employee_id == employee_id
@@ -78,14 +72,12 @@ pub fn role_remove_employee(mut ctx very.Context) ! {
 pub fn role_batch_remove_employee(mut ctx very.Context) ! {
 	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
 
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	for employee_id in batch_dto.employee_id_list {
-		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
-		defer {
-			fn [mut db, mut ctx] () {
-				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-				pp.release(db)
-			}()
-		}
 		sql db {
 			delete from entities.RoleEmployee where role_id == batch_dto.role_id
 			&& employee_id == employee_id
@@ -96,12 +88,10 @@ pub fn role_batch_remove_employee(mut ctx very.Context) ! {
 
 pub fn role_batch_add_employee(mut ctx very.Context) ! {
 	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		delete from entities.RoleEmployee where role_id == batch_dto.role_id
@@ -132,12 +122,10 @@ pub fn get_role_data_scope_list(mut ctx very.Context) ! {
 	}
 
 	// 获取选中菜单
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	role_menus := sql db {
 		select from entities.RoleMenu where role_id == role_id
@@ -159,12 +147,10 @@ pub fn update_role_menu(mut ctx very.Context) ! {
 	mut update_dto := ctx.body_parse[dto.UpdateRoleMenuDto]()!
 
 	// 删除之前所选
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		delete from entities.RoleMenu where role_id == update_dto.role_id
@@ -187,12 +173,10 @@ pub fn update_role_menu(mut ctx very.Context) ! {
 
 pub fn role_update(mut ctx very.Context) ! {
 	role := ctx.body_parse[entities.Role]()!
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	roles := sql db {
 		select from entities.Role where id != role.id && role_name == role.role_name limit 1
@@ -212,12 +196,10 @@ pub fn role_add(mut ctx very.Context) ! {
 	role.create_time = time.now().custom_format(time_format)
 	role.update_time = time.now().custom_format(time_format)
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	roles := sql db {
 		select from entities.Role where role_name == role.role_name limit 1
@@ -233,12 +215,10 @@ pub fn role_add(mut ctx very.Context) ! {
 
 pub fn role_delete(mut ctx very.Context) ! {
 	role_id := ctx.param('id').int()
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	sql db {
 		delete from entities.RoleMenu where role_id == role_id

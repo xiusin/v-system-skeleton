@@ -35,12 +35,10 @@ pub fn auth(mut ctx very.Context) ! {
 
 		login_user_id := jwt_payload.sub.int()
 
-		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+		pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+		mut db := pp.acquire()!
 		defer {
-			fn [mut db, mut ctx] () {
-				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-				pp.release(db)
-			}()
+			pp.release(db)
 		}
 
 		user := services.employee_info(db, login_user_id) or {

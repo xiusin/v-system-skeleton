@@ -22,12 +22,10 @@ pub fn access_log(mut ctx very.Context) ! {
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	defer {
 		sql db {

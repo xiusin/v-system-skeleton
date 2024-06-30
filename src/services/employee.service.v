@@ -15,16 +15,13 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 		mut where := []string{}
 		query_role_id := query_dto.role_id
 
-		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
-			defer {
-				fn[mut db, mut ctx]() {
-					mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-					pp.release(db)
-				}()
-			}
+		pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+		mut db := pp.acquire()!
+		defer {
+			pp.release(db)
+		}
 
 		if query_role_id > 0 {
-
 			employee_roles := sql db {
 				select from entities.RoleEmployee where role_id == query_role_id
 			}!
@@ -38,7 +35,7 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 
 		if query_dto.department_id != none {
 			if query_dto.department_id? > 0 {
-				where << 'department_id = ${query_dto.department_id or {0}}'
+				where << 'department_id = ${query_dto.department_id or { 0 }}'
 			}
 		}
 

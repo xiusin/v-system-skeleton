@@ -30,12 +30,10 @@ pub mut:
 
 // base_query Q 接收参数请求
 pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders ...string) !entities.Paginator[T] {
-	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	mut db := pp.acquire()!
 	defer {
-		fn [mut db, mut ctx] () {
-			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
-			pp.release(db)
-		}()
+		pp.release(db)
 	}
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
