@@ -5,7 +5,7 @@ import dto
 import entities
 import services
 import time
-import db.sqlite
+import db.mysql
 
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
@@ -18,7 +18,15 @@ pub fn login(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	login_user := services.employee_auth(ctx.di[sqlite.DB]('db')!, login_dto) or {
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
+
+	login_user := services.employee_auth(db, login_dto) or {
 		record.login_result = 1
 		record.remark = '${err}'
 		entities.Employee{}
@@ -28,7 +36,6 @@ pub fn login(mut ctx very.Context) ! {
 	record.user_name = login_user.actual_name
 	record.user_type = 1
 
-	db := ctx.di[sqlite.DB]('db')!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
@@ -49,8 +56,13 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	db := ctx.di[sqlite.DB]('db')!
-	dump(db)
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	login_user := services.employee_info(db, user_id, true)!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort

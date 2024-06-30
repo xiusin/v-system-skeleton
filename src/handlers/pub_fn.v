@@ -2,7 +2,6 @@ module handlers
 
 import xiusin.very
 import entities
-import db.sqlite
 import rand
 
 const time_format = 'YYYY-MM-DD HH:mm:ss'
@@ -49,7 +48,6 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 		return error('check_entity_exists: 请确定最少包含一个条件')
 	}
 
-	db := ctx.di[sqlite.DB]('db')!
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	builder.limit(1)
@@ -59,7 +57,7 @@ pub fn check_entity_exists[T](mut ctx very.Context, wheres ...string) ! {
 	})
 
 	builder.where(wheres_.join(' AND '))
-	if db.q_int(builder.to_sql(true))! > 0 { // TODO SQL拼错时无异常!
+	if builder.count(mut ctx)! > 0 { // TODO SQL拼错时无异常!
 		return error('已经存在相同的数据')
 	}
 }

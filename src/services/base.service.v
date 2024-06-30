@@ -2,7 +2,6 @@ module services
 
 import entities
 import xiusin.very
-import db.sqlite
 import math
 import crypto.sha256
 import crypto.hmac
@@ -10,6 +9,7 @@ import encoding.base64
 import json
 import time
 import config
+import db.mysql
 
 pub struct JwtHeader {
 	alg string
@@ -30,7 +30,13 @@ pub mut:
 
 // base_query Q 接收参数请求
 pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders ...string) !entities.Paginator[T] {
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	mut builder := entities.new_builder(true)
 	builder.model[T]()
 	where := build_where()!
@@ -46,9 +52,9 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 			builder.order_by(order)
 		}
 	}
-	count := db.q_int(builder.to_sql(true))!
+	count := builder.count(mut ctx)!
 	users := db.exec(builder.to_sql())!
-	paginator := builder.get_page[T](count, page_num, page_num, users)!
+	paginator := builder.get_page[T](int(count), page_num, page_num, users)!
 	return paginator
 }
 

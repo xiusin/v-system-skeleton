@@ -1,7 +1,7 @@
 module entities
 
 import math
-import db.sqlite
+import db.mysql
 import xiusin.very
 
 // TODO
@@ -105,7 +105,7 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 	return query
 }
 
-pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
+pub fn (mut info Builder) row_to_collection[T](items []mysql.Row) []T {
 	mut collection := []T{}
 	for it in items {
 		collection << info.row_to_item[T](it)
@@ -113,7 +113,7 @@ pub fn (mut info Builder) row_to_collection[T](items []sqlite.Row) []T {
 	return collection
 }
 
-pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
+pub fn (mut info Builder) row_to_item[T](it mysql.Row) T {
 	mut item := T{}
 	mut idx := 0
 	$for field in T.fields {
@@ -137,7 +137,7 @@ pub fn (mut info Builder) row_to_item[T](it sqlite.Row) T {
 	return item
 }
 
-pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []sqlite.Row) !Paginator[T] {
+pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []mysql.Row) !Paginator[T] {
 	if page_size == 0 || page == 0 {
 		return error('page or page_size is zero')
 	}
@@ -176,8 +176,13 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	db := ctx.di[sqlite.DB]('db')!
-	dump('db = ${db}')
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	data_items := db.exec(query)!
 	return info.row_to_collection[T](data_items)
 }
@@ -211,4 +216,26 @@ fn (mut info Builder) get_entity_fields[T]() &Builder {
 		}
 	}
 	return info
+}
+
+pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
+	query_sql := if sql_.len == 0 {
+		info.to_sql(true)
+	} else {
+		sql_[0]
+	}
+
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
+
+	row := db.exec_one(query_sql)!
+	if row.vals.len > 0 {
+		return row.vals[0].u64()
+	}
+	return 0
 }

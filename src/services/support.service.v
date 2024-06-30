@@ -3,7 +3,7 @@ module services
 import entities
 import xiusin.very
 import dto
-import db.sqlite
+import db.mysql
 
 pub fn support_config_query(mut ctx very.Context) !entities.Paginator[entities.Config] {
 	return base_query[entities.Config](mut ctx, fn [mut ctx] () ![]string {
@@ -93,7 +93,13 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 }
 
 pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	return sql db {
 		select from entities.DictKey order by id desc
 	}!

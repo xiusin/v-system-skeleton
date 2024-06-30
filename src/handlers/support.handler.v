@@ -9,7 +9,7 @@ import json
 import services
 import crypto.md5
 import math
-import db.sqlite
+import db.mysql
 
 pub fn dict_key_query(mut ctx very.Context) ! {
 	paginator := services.support_dict_key_query(mut ctx)!
@@ -23,7 +23,13 @@ pub fn dict_key_query_all(mut ctx very.Context) ! {
 pub fn dict_key_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
 	for id in ids {
-		db := ctx.di[sqlite.DB]('db')!
+		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+		defer {
+			fn [mut db, mut ctx] () {
+				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+				pp.release(db)
+			}()
+		}
 		sql db {
 			delete from entities.DictKey where id == id
 			delete from entities.DictValue where dict_key_id == id
@@ -39,7 +45,13 @@ pub fn dict_key_add(mut ctx very.Context) ! {
 	key.create_time = time.now().custom_format(time_format)
 	key.update_time = time.now().custom_format(time_format)
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		insert key into entities.DictKey
 	}!
@@ -49,7 +61,13 @@ pub fn dict_key_add(mut ctx very.Context) ! {
 pub fn dict_key_edit(mut ctx very.Context) ! {
 	key := ctx.body_parse[entities.DictKey]()!
 	check_entity_exists[entities.DictKey](mut ctx, 'id <> ${key.id}', "key_code = '${key.key_code}'")!
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		update entities.DictKey set key_code = key.key_code, key_name = key.key_name, remark = key.remark,
 		update_time = time.now().custom_format(time_format) where id == key.id
@@ -65,7 +83,13 @@ pub fn dict_value_query(mut ctx very.Context) ! {
 pub fn dict_value_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
 	for id in ids {
-		db := ctx.di[sqlite.DB]('db')!
+		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+		defer {
+			fn [mut db, mut ctx] () {
+				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+				pp.release(db)
+			}()
+		}
 		sql db {
 			delete from entities.DictValue where id == id
 		}!
@@ -82,7 +106,13 @@ pub fn dict_value_add(mut ctx very.Context) ! {
 	value.create_time = time.now().custom_format(time_format)
 	value.update_time = time.now().custom_format(time_format)
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		insert value into entities.DictValue
 	}!
@@ -94,7 +124,13 @@ pub fn dict_value_edit(mut ctx very.Context) ! {
 	check_entity_exists[entities.DictValue](mut ctx, 'id <> ${value.id}', 'dict_key_id = ${value.dict_key_id}',
 		"value_code = '${value.value_code}'")!
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		update entities.DictValue set value_code = value.value_code, value_name = value.value_name,
 		remark = value.remark, dict_key_id = value.dict_key_id, update_time = time.now().custom_format(time_format)
@@ -114,7 +150,13 @@ pub fn config_add(mut ctx very.Context) ! {
 	value.create_time = time.now().custom_format(time_format)
 	value.update_time = time.now().custom_format(time_format)
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		insert value into entities.Config
 	}!
@@ -127,7 +169,13 @@ pub fn config_edit(mut ctx very.Context) ! {
 	check_entity_exists[entities.Config](mut ctx, 'id <> ${value.id}', "config_key = '${value.config_key}' OR config_name = '${value.config_name}'")!
 	value.update_time = time.now().custom_format(time_format)
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		update entities.Config set config_key = value.config_key, config_name = value.config_name,
 		remark = value.remark, config_value = value.config_value, update_time = time.now().custom_format(time_format)
@@ -159,9 +207,17 @@ pub fn file_upload(mut ctx very.Context) ! {
 	save_file_name := 'uploads/${filename}'
 	os.mkdir('uploads') or {}
 	os.write_file(save_file_name, upload_file.data)!
-	user := services.employee_info(ctx.di[sqlite.DB]('db')!, ctx.value('user_id')! as int)!
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
+
+	user := services.employee_info(db, ctx.value('user_id')! as int)!
+
 	mut files := sql db {
 		select from entities.File where file_key == save_file_name
 	}!
@@ -184,7 +240,7 @@ pub fn file_upload(mut ctx very.Context) ! {
 			insert file into entities.File
 		}!
 
-		file.id = ctx.di[sqlite.DB]('db')!.last_id()
+		file.id = ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!.last_id()
 		files << file
 	}
 
@@ -193,7 +249,13 @@ pub fn file_upload(mut ctx very.Context) ! {
 
 pub fn table_column_get(mut ctx very.Context) ! {
 	table_id := ctx.param('table_id').int()
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	tables := sql db {
 		select from entities.TableColumn where table_id == table_id limit 1
 	}!
@@ -210,7 +272,13 @@ pub fn table_column_get(mut ctx very.Context) ! {
 
 pub fn table_column_update(mut ctx very.Context) ! {
 	table_column_dto := ctx.body_parse[dto.TableColumnDto]()!
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	tables := sql db {
 		select from entities.TableColumn where table_id == table_column_dto.table_id limit 1
 	}!
@@ -252,10 +320,16 @@ pub fn feedback_add(mut ctx very.Context) ! {
 		feedback_attachment: json.encode(feedback_dto.feedback_attachment)
 	}
 
-	login_user := services.employee_info(ctx.di[sqlite.DB]('db')!, feedback.user_id)!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
+	login_user := services.employee_info(db, feedback.user_id)!
 	feedback.user_name = login_user.actual_name
 
-	db := ctx.di[sqlite.DB]('db')!
 	sql db {
 		insert feedback into entities.Feedback
 	}!
@@ -266,7 +340,13 @@ pub fn change_log_add(mut ctx very.Context) ! {
 	mut change_log := ctx.body_parse[entities.ChangeLog]()!
 	change_log.create_time = time.now().custom_format(time_format)
 	change_log.update_time = time.now().custom_format(time_format)
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		insert change_log into entities.ChangeLog
 	}!
@@ -275,7 +355,13 @@ pub fn change_log_add(mut ctx very.Context) ! {
 
 pub fn change_log_update(mut ctx very.Context) ! {
 	mut change_log := ctx.body_parse[entities.ChangeLog]()!
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		update entities.ChangeLog set version = change_log.version, @type = change_log.@type,
 		public_date = change_log.public_date, publish_author = change_log.publish_author,
@@ -287,7 +373,13 @@ pub fn change_log_update(mut ctx very.Context) ! {
 
 pub fn change_log_delete(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		delete from entities.ChangeLog where id == id
 	}!
@@ -297,7 +389,13 @@ pub fn change_log_delete(mut ctx very.Context) ! {
 pub fn change_log_batch_delete(mut ctx very.Context) ! {
 	mut ids := ctx.body_parse[[]int]()!
 	for id in ids {
-		db := ctx.di[sqlite.DB]('db')!
+		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+		defer {
+			fn [mut db, mut ctx] () {
+				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+				pp.release(db)
+			}()
+		}
 		sql db {
 			delete from entities.ChangeLog where id == id
 		}!
@@ -314,7 +412,13 @@ pub fn help_doc_catalog_add(mut ctx very.Context) ! {
 	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
 	catalog.create_time = time.now().custom_format(time_format)
 	catalog.update_time = time.now().custom_format(time_format)
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		insert catalog into entities.HelpDocCatalog
 	}!
@@ -322,7 +426,13 @@ pub fn help_doc_catalog_add(mut ctx very.Context) ! {
 }
 
 pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	catalogs := sql db {
 		select from entities.HelpDocCatalog order by sort desc
 	}!
@@ -338,8 +448,8 @@ pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 
 	mut builder := entities.new_builder(true)
 	tables := builder.query_raw[entities.SqliteMaster](mut ctx, sql_)!
-	db := ctx.di[sqlite.DB]('db')!
-	count := db.q_int(count_sql)!
+
+	count := builder.count(mut ctx, count_sql)!
 
 	mut cgct := []entities.CodeGeneratorConfigTable{cap: tables.len}
 	for table in tables {
@@ -349,7 +459,7 @@ pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 	}
 
 	paginator := entities.Paginator[entities.CodeGeneratorConfigTable]{
-		total: count
+		total: int(count)
 		pages: int(math.ceil(f64(count) / f64(query_dto.page_size)))
 		current_page: query_dto.page_num
 		page_size: query_dto.page_size
@@ -383,7 +493,13 @@ pub fn code_generator_query_table_column(mut ctx very.Context) ! {
 
 pub fn code_generator_table_get_config(mut ctx very.Context) ! {
 	tbl_name := ctx.param('tbl_name')
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	mut cfg_arr := sql db {
 		select from entities.CodeGeneratorConfig where table_name == tbl_name limit 1
 	}!
@@ -444,7 +560,13 @@ pub fn code_generator_table_update_config(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		delete from entities.CodeGeneratorConfig where table_name == cfg.table_name
 		insert cfg into entities.CodeGeneratorConfig
@@ -469,7 +591,13 @@ pub fn login_log_page_query(mut ctx very.Context) ! {
 
 pub fn help_doc_catalog_update(mut ctx very.Context) ! {
 	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
-	db := ctx.di[sqlite.DB]('db')!
+	mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+	defer {
+		fn [mut db, mut ctx] () {
+			mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+			pp.release(db)
+		}()
+	}
 	sql db {
 		update entities.HelpDocCatalog set name = catalog.name, parent_id = catalog.parent_id,
 		sort = catalog.sort, update_time = time.now().custom_format(time_format) where id == catalog.id

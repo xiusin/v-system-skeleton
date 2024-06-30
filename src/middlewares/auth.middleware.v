@@ -7,7 +7,7 @@ import crypto.sha256
 import config
 import json
 import services
-import db.sqlite
+import db.mysql
 
 pub fn auth(mut ctx very.Context) ! {
 	uri := ctx.req.path()
@@ -34,7 +34,16 @@ pub fn auth(mut ctx very.Context) ! {
 		}
 
 		login_user_id := jwt_payload.sub.int()
-		user := services.employee_info(ctx.di[sqlite.DB]('db')!, login_user_id) or {
+
+		mut db := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!
+		defer {
+			fn [mut db, mut ctx] () {
+				mut pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool') or { return }
+				pp.release(db)
+			}()
+		}
+
+		user := services.employee_info(db, login_user_id) or {
 			ctx.set_status(.forbidden)
 			ctx.stop()
 			return error('用户不能存在')
