@@ -13,10 +13,8 @@ fn main() {
 
 	mut pp := very.new_ch_pool[mysql.DB](fn () !mysql.DB {
 		return config.get_mysql_db()
-	})
+	}, 100)
 
-	db := config.get_mysql_db()!
-	di.inject_on(&db, 'db')
 	di.inject_on(&pp, 'db_pool')
 
 	routers.register_router(mut app)
