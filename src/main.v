@@ -12,11 +12,12 @@ fn main() {
 	app.recover_handler = handlers.recover
 
 	mut pp := very.new_ch_pool[mysql.DB](fn () !mysql.DB {
+		println('初始化数据库连接池')
 		return config.get_mysql_db()
-	}, 100)
+	}, 12)
+	pp.set_release_failed_fn(fn (mut inst mysql.DB) { inst.close() })
 
 	di.inject_on(&pp, 'db_pool')
-
 	routers.register_router(mut app)
 	app.run()
 }
