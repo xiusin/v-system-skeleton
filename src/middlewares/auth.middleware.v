@@ -35,7 +35,7 @@ pub fn auth(mut ctx very.Context) ! {
 		login_user_id := jwt_payload.sub.int()
 		login_user_name := jwt_payload.name.str()
 
-		// pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+		// pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 		// mut db := pp.acquire()!
 		// defer {
 		// 	pp.release(db)

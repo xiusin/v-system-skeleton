@@ -9,7 +9,7 @@ import json
 import services
 import crypto.md5
 import math
-import db.mysql
+import db.pg
 
 pub fn dict_key_query(mut ctx very.Context) ! {
 	paginator := services.support_dict_key_query(mut ctx)!
@@ -23,7 +23,7 @@ pub fn dict_key_query_all(mut ctx very.Context) ! {
 pub fn dict_key_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -45,7 +45,7 @@ pub fn dict_key_add(mut ctx very.Context) ! {
 	key.create_time = time.now().custom_format(time_format)
 	key.update_time = time.now().custom_format(time_format)
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -59,7 +59,7 @@ pub fn dict_key_add(mut ctx very.Context) ! {
 pub fn dict_key_edit(mut ctx very.Context) ! {
 	key := ctx.body_parse[entities.DictKey]()!
 	check_entity_exists[entities.DictKey](mut ctx, 'id <> ${key.id}', "key_code = '${key.key_code}'")!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -78,7 +78,7 @@ pub fn dict_value_query(mut ctx very.Context) ! {
 
 pub fn dict_value_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -100,7 +100,7 @@ pub fn dict_value_add(mut ctx very.Context) ! {
 	value.create_time = time.now().custom_format(time_format)
 	value.update_time = time.now().custom_format(time_format)
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -116,7 +116,7 @@ pub fn dict_value_edit(mut ctx very.Context) ! {
 	check_entity_exists[entities.DictValue](mut ctx, 'id <> ${value.id}', 'dict_key_id = ${value.dict_key_id}',
 		"value_code = '${value.value_code}'")!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -140,7 +140,7 @@ pub fn config_add(mut ctx very.Context) ! {
 	value.create_time = time.now().custom_format(time_format)
 	value.update_time = time.now().custom_format(time_format)
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -157,7 +157,7 @@ pub fn config_edit(mut ctx very.Context) ! {
 	check_entity_exists[entities.Config](mut ctx, 'id <> ${value.id}', "config_key = '${value.config_key}' OR config_name = '${value.config_name}'")!
 	value.update_time = time.now().custom_format(time_format)
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -194,7 +194,7 @@ pub fn file_upload(mut ctx very.Context) ! {
 	os.mkdir('uploads') or {}
 	os.write_file(save_file_name, upload_file.data)!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -224,7 +224,7 @@ pub fn file_upload(mut ctx very.Context) ! {
 			insert file into entities.File
 		}!
 
-		file.id = ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!.last_id()
+		file.id = ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!.acquire()!.last_id()
 		files << file
 	}
 
@@ -233,7 +233,7 @@ pub fn file_upload(mut ctx very.Context) ! {
 
 pub fn table_column_get(mut ctx very.Context) ! {
 	table_id := ctx.param('table_id').int()
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -254,7 +254,7 @@ pub fn table_column_get(mut ctx very.Context) ! {
 
 pub fn table_column_update(mut ctx very.Context) ! {
 	table_column_dto := ctx.body_parse[dto.TableColumnDto]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -300,7 +300,7 @@ pub fn feedback_add(mut ctx very.Context) ! {
 		feedback_attachment: json.encode(feedback_dto.feedback_attachment)
 	}
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -318,7 +318,7 @@ pub fn change_log_add(mut ctx very.Context) ! {
 	mut change_log := ctx.body_parse[entities.ChangeLog]()!
 	change_log.create_time = time.now().custom_format(time_format)
 	change_log.update_time = time.now().custom_format(time_format)
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -331,7 +331,7 @@ pub fn change_log_add(mut ctx very.Context) ! {
 
 pub fn change_log_update(mut ctx very.Context) ! {
 	mut change_log := ctx.body_parse[entities.ChangeLog]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -347,7 +347,7 @@ pub fn change_log_update(mut ctx very.Context) ! {
 
 pub fn change_log_delete(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -360,7 +360,7 @@ pub fn change_log_delete(mut ctx very.Context) ! {
 
 pub fn change_log_batch_delete(mut ctx very.Context) ! {
 	mut ids := ctx.body_parse[[]int]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -382,7 +382,7 @@ pub fn help_doc_catalog_add(mut ctx very.Context) ! {
 	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
 	catalog.create_time = time.now().custom_format(time_format)
 	catalog.update_time = time.now().custom_format(time_format)
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -394,7 +394,7 @@ pub fn help_doc_catalog_add(mut ctx very.Context) ! {
 }
 
 pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -459,7 +459,7 @@ pub fn code_generator_query_table_column(mut ctx very.Context) ! {
 
 pub fn code_generator_table_get_config(mut ctx very.Context) ! {
 	tbl_name := ctx.param('tbl_name')
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -524,7 +524,7 @@ pub fn code_generator_table_update_config(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -553,7 +553,7 @@ pub fn login_log_page_query(mut ctx very.Context) ! {
 
 pub fn help_doc_catalog_update(mut ctx very.Context) ! {
 	mut catalog := ctx.body_parse[entities.HelpDocCatalog]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

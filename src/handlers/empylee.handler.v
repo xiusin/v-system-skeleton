@@ -6,7 +6,7 @@ import dto
 import time
 import crypto.md5
 import services
-import db.mysql
+import db.pg
 
 pub fn employee_query(mut ctx very.Context) ! {
 	mut paginator := services.employee_query(mut ctx)!
@@ -71,7 +71,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 pub fn employee_reset_password(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
 	password := rand_str(8)
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -85,7 +85,7 @@ pub fn employee_reset_password(mut ctx very.Context) ! {
 
 pub fn employee_update_disabled(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -112,7 +112,7 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 
 	login_user_id := ctx.value('user_id', 0)! as int
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -134,7 +134,7 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 }
 
 pub fn employee_query_all(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -147,7 +147,7 @@ pub fn employee_query_all(mut ctx very.Context) ! {
 
 pub fn employee_add(mut ctx very.Context) ! {
 	mut employee := ctx.body_parse[entities.Employee]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -167,7 +167,7 @@ pub fn employee_add(mut ctx very.Context) ! {
 pub fn employee_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -185,7 +185,7 @@ pub fn employee_delete(mut ctx very.Context) ! {
 pub fn employee_update_batch_department(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.EmployeeBatchDepartmentDto]()!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -202,7 +202,7 @@ pub fn employee_update_batch_department(mut ctx very.Context) ! {
 pub fn employee_update(mut ctx very.Context) ! {
 	employee := ctx.body_parse[dto.EmployeeRespDto]()!
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

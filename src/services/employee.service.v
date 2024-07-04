@@ -6,7 +6,7 @@ import orm
 import dto
 import crypto.md5
 import xiusin.very
-import db.mysql
+import db.pg
 
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
@@ -15,7 +15,7 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 		mut where := []string{}
 		query_role_id := query_dto.role_id
 
-		pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+		pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 		mut db := pp.acquire()!
 		defer {
 			pp.release(db)

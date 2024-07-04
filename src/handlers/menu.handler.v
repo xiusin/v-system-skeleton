@@ -2,10 +2,10 @@ module handlers
 
 import xiusin.very
 import entities
-import db.mysql
+import db.pg
 
 pub fn menu_query(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -21,7 +21,7 @@ pub fn menu_auth_url(mut ctx very.Context) ! {
 
 pub fn menu_add(mut ctx very.Context) ! {
 	menu := ctx.body_parse[entities.Menu]()!
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -29,7 +29,7 @@ pub fn menu_add(mut ctx very.Context) ! {
 	sql db {
 		insert menu into entities.Menu
 	}!
-	last_id := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!.acquire()!.last_id()
+	last_id := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!.acquire()!.last_id()
 	new_menu := sql db {
 		select from entities.Menu where id == last_id limit 1
 	}!
@@ -37,7 +37,7 @@ pub fn menu_add(mut ctx very.Context) ! {
 }
 
 pub fn menu_batch_delete(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -62,7 +62,7 @@ pub fn menu_batch_delete(mut ctx very.Context) ! {
 }
 
 pub fn menu_tree(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

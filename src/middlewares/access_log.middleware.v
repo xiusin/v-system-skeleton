@@ -3,7 +3,7 @@ module middlewares
 import xiusin.very
 import entities
 import time
-import db.mysql
+import db.pg
 
 pub fn access_log(mut ctx very.Context) ! {
 	login_user_id := ctx.value('user_id', 0)! as int
@@ -22,7 +22,7 @@ pub fn access_log(mut ctx very.Context) ! {
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

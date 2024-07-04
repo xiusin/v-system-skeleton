@@ -1,7 +1,7 @@
 module entities
 
 import math
-import db.mysql
+import db.pg
 import xiusin.very
 
 // TODO
@@ -105,7 +105,7 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 	return query
 }
 
-pub fn (mut info Builder) row_to_collection[T](items []mysql.Row) []T {
+pub fn (mut info Builder) row_to_collection[T](items []pg.Row) []T {
 	mut collection := []T{}
 	for it in items {
 		collection << info.row_to_item[T](it)
@@ -113,7 +113,7 @@ pub fn (mut info Builder) row_to_collection[T](items []mysql.Row) []T {
 	return collection
 }
 
-pub fn (mut info Builder) row_to_item[T](it mysql.Row) T {
+pub fn (mut info Builder) row_to_item[T](it pg.Row) T {
 	mut item := T{}
 	mut idx := 0
 	$for field in T.fields {
@@ -137,7 +137,7 @@ pub fn (mut info Builder) row_to_item[T](it mysql.Row) T {
 	return item
 }
 
-pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []mysql.Row) !Paginator[T] {
+pub fn (mut info Builder) get_page[T](count int, page int, page_size int, items []pg.Row) !Paginator[T] {
 	if page_size == 0 || page == 0 {
 		return error('page or page_size is zero')
 	}
@@ -176,7 +176,7 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -223,7 +223,7 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 		sql_[0]
 	}
 
-	pp := ctx.di[&very.PoolChannel[mysql.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -231,7 +231,7 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 
 	row := db.exec_one(query_sql)!
 	if row.vals.len > 0 {
-		return row.vals[0].u64()
+		return row.vals.u64()
 	}
 	return 0
 }

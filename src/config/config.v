@@ -1,7 +1,7 @@
 module config
 
 import db.sqlite
-import db.mysql
+import db.pg
 
 pub fn get_db() sqlite.DB {
 	mut db := sqlite.connect('database.db') or { panic(err) }
@@ -11,16 +11,14 @@ pub fn get_db() sqlite.DB {
 	return db
 }
 
-
-pub fn get_mysql_db() !mysql.DB {
-	mut db := mysql.connect(
-		host: 'rm-2zef5862fk3wi3orepo.mysql.rds.aliyuncs.com'
-		port: 3306
-		username: 'xiusin'
-		password: 'yuAU702G!'
-		dbname: 'test'
+pub fn get_pg_db() !pg.DB {
+	mut db := pg.connect(
+		host: '47.102.127.65'
+		port: 5433
+		user: 'xiusin'
+		password: 'Q9ANXDWizMr4'
+		dbname: 'db2e57200cda4043e4bd848d434f590854vcms'
 	)!
-
 	return db
 }
 
