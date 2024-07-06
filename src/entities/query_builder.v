@@ -98,8 +98,6 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 		query += ' LIMIT 1'
 	}
 
-	dump(query)
-
 	return query
 }
 
@@ -108,8 +106,6 @@ pub fn (mut info Builder) row_to_collection[T](items []pg.Row) []T {
 	for it in items {
 		collection << info.row_to_item[T](it)
 	}
-
-	dump(collection)
 	return collection
 }
 
@@ -227,7 +223,6 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 	} else {
 		sql_[0]
 	}
-	dump('CNT: ${query_sql}')
 	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
