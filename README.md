@@ -97,4 +97,3 @@ This project uses the MIT license.
 This project is driven by the V language and adopts a modern technical architecture. It has the characteristics of high performance, modernization and ease of use. It can be used in enterprise backend management systems, SAAS platforms, IoT management platforms and other scenarios. We will continue to iterate to provide you with better products and services. If you have any questions or suggestions, please feel free to raise them.
 
 
-> mysql: `brew install mariadb-connector-c`

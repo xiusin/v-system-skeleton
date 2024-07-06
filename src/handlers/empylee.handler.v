@@ -18,7 +18,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 	}
 	employee_ids << '-1'
 
-	sql_ := 'select employee_id, group_concat(role_id) as role_id_list, group_concat(role_name) as role_name_list from t_role_employee e join t_role r on e.role_id = r.id where employee_id in (${employee_ids.join(',')}) group by employee_id'
+	sql_ := "select employee_id, string_agg(role_id::varchar, ',') as role_id_list, string_agg(role_name, ',') as role_name_list from t_role_employee e join t_role r on e.role_id = r.id where employee_id in (${employee_ids.join(',')}) group by employee_id"
 	mut builder := entities.new_builder(false)
 	mut ralation := builder.query_raw[entities.EmployeeRoleRelation](mut ctx, sql_)!
 

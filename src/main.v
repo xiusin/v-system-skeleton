@@ -12,12 +12,10 @@ fn main() {
 	app.recover_handler = handlers.recover
 
 	mut pp := very.new_ch_pool[pg.DB](fn () !pg.DB {
-		println('初始化数据库连接池')
 		return config.get_pg_db()!
-	}, 12)
+	}, 3)
 
 	pp.set_release_failed_fn(fn (mut inst pg.DB) {
-		println('释放数据库连接对象')
 		inst.close()
 	})
 

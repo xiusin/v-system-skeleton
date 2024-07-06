@@ -19,11 +19,11 @@ pub mut:
 @[table: 'sqlite_master']
 pub struct SqliteMaster {
 pub mut:
-	@type    string
-	name     string
-	tbl_name string
-	rootpage int
-	sql_     string
+	@type     string
+	name      string
+	tablename string
+	rootpage  int
+	sql_      string
 }
 
 pub struct CodeGeneratorConfigTable {

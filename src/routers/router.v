@@ -47,6 +47,8 @@ pub fn register_router(mut app very.Application) {
 		menu_api.get('/tree', handlers.menu_tree)
 		menu_api.get('/batchDelete', handlers.menu_batch_delete)
 		menu_api.post('/add', handlers.menu_add)
+		menu_api.post('/update', handlers.menu_update)
+		menu_api.get('/auth/url', handlers.menu_auth_url)
 	}
 	mut employee_api := app.group('/employee')
 	{
@@ -91,8 +93,4 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/add', handlers.feedback_add)
 		support_api.post('/loginLog/page/query', handlers.login_log_page_query)
 	}
-	// mut oa_api := app.group('/oa')
-	// {
-	// 	oa_api.mount[oa.Notice]()
-	// }
 }

@@ -409,8 +409,8 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.CodeGeneratorTableListDto]()!
 	offset := query_dto.page_size * (query_dto.page_num - 1)
-	sql_ := "select * from sqlite_master where type = 'table' and name != 'sqlite_sequence' order by name limit ${offset},${query_dto.page_size}"
-	count_sql := "select count(*) AS total from sqlite_master where type = 'table' and name != 'sqlite_sequence'"
+	sql_ := 'select * from pg_tables offset ${offset} limit ${query_dto.page_size}'
+	count_sql := 'select count(*) AS total from pg_tables'
 
 	mut builder := entities.new_builder(true)
 	tables := builder.query_raw[entities.SqliteMaster](mut ctx, sql_)!
@@ -420,7 +420,7 @@ pub fn code_generator_query_table_list(mut ctx very.Context) ! {
 	mut cgct := []entities.CodeGeneratorConfigTable{cap: tables.len}
 	for table in tables {
 		cgct << entities.CodeGeneratorConfigTable{
-			table_name: table.tbl_name
+			table_name: table.name
 		}
 	}
 

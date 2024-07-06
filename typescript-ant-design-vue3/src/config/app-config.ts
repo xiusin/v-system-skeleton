@@ -25,11 +25,13 @@ export const appDefaultConfig: AppConfig = {
     // 标签页
     pageTagFlag: true,
     // 面包屑
-    breadCrumbFlag: true,
+    breadCrumbFlag: false,
     // 页脚
-    footerFlag: true,
+    footerFlag: false,
     // 帮助文档
     helpDocFlag: false,
     // 网站名称
     websiteName: 'V System Skeleton',
 };
+
+

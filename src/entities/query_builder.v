@@ -92,15 +92,13 @@ pub fn (mut info Builder) to_sql(is_count ...bool) string {
 			query += ' ORDER BY ' + info.order_by.join(',')
 		}
 		if info.limit > 0 {
-			query += ' LIMIT ${info.offset},${info.limit}'
+			query += ' OFFSET ${info.offset} LIMIT ${info.limit}'
 		}
 	} else {
 		query += ' LIMIT 1'
 	}
 
-	// if info.debug {
-	// 	println(query)
-	// }
+	dump(query)
 
 	return query
 }
@@ -110,6 +108,8 @@ pub fn (mut info Builder) row_to_collection[T](items []pg.Row) []T {
 	for it in items {
 		collection << info.row_to_item[T](it)
 	}
+
+	dump(collection)
 	return collection
 }
 
@@ -118,18 +118,23 @@ pub fn (mut info Builder) row_to_item[T](it pg.Row) T {
 	mut idx := 0
 	$for field in T.fields {
 		if field.is_pub && !field.attrs.contains('build: skip') && !field.attrs.contains('sql: -') {
+			val := it.vals[idx]
+			fv := val or { '' }
+
 			$if field.typ is string {
-				item.$(field.name) = it.vals[idx].str()
+				item.$(field.name) = fv.str()
 			} $else $if field.typ is int {
-				item.$(field.name) = it.vals[idx].int()
+				item.$(field.name) = fv.int()
 			} $else $if field.typ is i8 {
-				item.$(field.name) = it.vals[idx].i8()
+				item.$(field.name) = fv.i8()
 			} $else $if field.typ is i64 {
-				item.$(field.name) = it.vals[idx].i64()
+				item.$(field.name) = fv.i64()
 			} $else $if field.typ is i16 {
-				item.$(field.name) = it.vals[idx].i16()
+				item.$(field.name) = fv.i16()
 			} $else $if field.typ is bool {
-				item.$(field.name) = it.vals[idx].bool()
+				item.$(field.name) = fv.bool()
+			} $else $if field.typ is f64 {
+				item.$(field.name) = fv.f64()
 			}
 			idx++
 		}
@@ -222,7 +227,7 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 	} else {
 		sql_[0]
 	}
-
+	dump('CNT: ${query_sql}')
 	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
 	mut db := pp.acquire()!
 	defer {
@@ -230,8 +235,11 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 	}
 
 	row := db.exec_one(query_sql)!
-	if row.vals.len > 0 {
-		return row.vals.u64()
+
+	if row.vals.len == 0 {
+		return 0
 	}
-	return 0
+	val := row.vals[0]
+	dd := val or { '0' } // 太他妈弱智了
+	return dd.u64()
 }
