@@ -7,8 +7,6 @@ import crypto.sha256
 import config
 import json
 import services
-import db.pg
-import v.fmt
 
 pub fn auth(mut ctx very.Context) ! {
 	uri := ctx.req.path()
@@ -36,18 +34,6 @@ pub fn auth(mut ctx very.Context) ! {
 
 		login_user_id := jwt_payload.sub.int()
 		login_user_name := jwt_payload.name.str()
-
-		pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
-		mut db := pp.acquire()!
-		defer {
-			pp.release(db)
-		}
-
-		user := services.employee_info(db, login_user_id) or {
-			ctx.set_status(.forbidden)
-			ctx.stop()
-			return error('用户不能存在')
-		}
 
 		ctx.set('user_name', login_user_name)
 		ctx.set('user_id', login_user_id)

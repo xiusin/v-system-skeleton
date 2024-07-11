@@ -6,8 +6,7 @@ import routers
 import handlers
 import xiusin.very.di
 import db.pg
-import time
-import xiusin.cache
+import xiusin.vredis
 
 fn main() {
 	mut app := very.new(port: 8089, app_name: 'v-admin-skeleton')
@@ -27,8 +26,17 @@ fn main() {
 	)
 	di.inject_on(&pp, 'db_pool')
 
-	mut cache_manager := cache.new(cleanup_interval: time.second * 10)
-	di.inject_on(&cache_manager, 'cache_manager')
+	mut rp := vredis.new_pool(
+		dial: fn () !&vredis.Redis {
+			c := vredis.new_client()!
+			return &c
+		}
+	)!
+	di.inject_on(rp, 'redis_manager')
+
+	app.register_on_interrupt(fn [mut rp] () ! {
+		rp.close()
+	})
 
 	routers.register_router(mut app)
 	app.run()
