@@ -28,8 +28,7 @@ fn main() {
 
 	mut rp := vredis.new_pool(
 		dial: fn () !&vredis.Redis {
-			c := vredis.new_client()!
-			return &c
+			return vredis.new_client()!
 		}
 	)!
 	di.inject_on(rp, 'redis_manager')
