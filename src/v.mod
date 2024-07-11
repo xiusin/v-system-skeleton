@@ -5,6 +5,6 @@ Module {
 	license: ''
 	dependencies: [
 	    'xiusin.very',
-	    'xiusin.vcache'
+	    'xiusin.cache'
 	]
 }

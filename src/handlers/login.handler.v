@@ -7,6 +7,9 @@ import services
 import time
 import db.pg
 
+pub fn hello(mut ctx very.Context) ! {
+}
+
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
 	mut record := entities.LoginLog{

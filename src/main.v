@@ -6,7 +6,8 @@ import routers
 import handlers
 import xiusin.very.di
 import db.pg
-import xiusin.vredis
+import time
+import xiusin.cache
 
 fn main() {
 	mut app := very.new(port: 8089, app_name: 'v-admin-skeleton')
@@ -28,7 +29,6 @@ fn main() {
 
 	mut cache_manager := cache.new(cleanup_interval: time.second * 10)
 	di.inject_on(&cache_manager, 'cache_manager')
-
 
 	routers.register_router(mut app)
 	app.run()
