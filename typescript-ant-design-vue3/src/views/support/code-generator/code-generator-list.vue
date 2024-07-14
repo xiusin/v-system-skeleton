@@ -1,15 +1,6 @@
-<!--
-  * 代码生成 列表
-  * 
-  * @Author:    1024创新实验室-主任：卓大 
-  * @Date:      2022-06-08 21:50:41 
-  * @Wechat:    zhuda1024 
-  * @Email:     lab1024@163.com 
-  * @Copyright  1024创新实验室 （ https://1024lab.net ），Since 2012 
--->
 <template>
   <div>
-    <a-form class="smart-query-form">
+<!--    <a-form class="smart-query-form">
       <a-row class="smart-query-form-row">
         <a-form-item label="表名" class="smart-query-form-item">
           <a-input style="width: 300px" v-model:value="queryForm.tableNameKeywords" placeholder="请输入表名关键字" />
@@ -30,7 +21,7 @@
           </a-button>
         </a-form-item>
       </a-row>
-    </a-form>
+    </a-form> -->
 
     <a-card size="small" :bordered="false" :hoverable="true">
       <a-row justify="end">
@@ -86,7 +77,7 @@
   const columns = ref([
     {
       title: '序号',
-      width: 50,
+      width: 90,
       dataIndex: 'seq',
     },
     {
@@ -94,31 +85,15 @@
       dataIndex: 'tableName',
     },
     {
-      title: '备注',
-      dataIndex: 'tableComment',
-      ellipsis: true,
-    },
-    {
       title: '代码配置',
       dataIndex: 'configTime',
-      width: 150,
+      width: 350,
     },
-    {
-      title: '表创建时间',
-      dataIndex: 'createTime',
-      width: 150,
-    },
-    {
-      title: '表修改时间',
-      dataIndex: 'updateTime',
-      width: 150,
-    },
-
     {
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      width: 210,
+      width: 250,
     },
   ]);
 

@@ -5,8 +5,8 @@ import net.http
 
 struct PageQueryDto {
 pub mut:
-	page_num  int [json: 'pageNum']
-	page_size int [json: 'pageSize']
+	page_num  int @[json: 'pageNum']
+	page_size int @[json: 'pageSize']
 }
 
 pub fn query(mut ctx very.Context) ! {

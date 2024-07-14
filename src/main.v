@@ -5,26 +5,35 @@ import config
 import routers
 import handlers
 import xiusin.very.di
-import db.sqlite
+import db.pg
+import xiusin.vredis
 
 fn main() {
 	mut app := very.new(port: 8089, app_name: 'v-admin-skeleton')
 	app.recover_handler = handlers.recover
 
-	// add db pool, wait test
-	mut db_pool := very.new_pool(fn () &sqlite.DB {
-		db := config.get_db()
-		return &db
-	})
+	mut pp := very.new_ch_pool[pg.DB](
+		factory: fn () !pg.DB {
+			return config.get_pg_db()!
+		}
+		release_failed_fn: fn (mut inst pg.DB) {
+			inst.close()
+		}
+		loop_fn: fn (mut inst pg.DB) ! {
+			inst.q_int('select 1')!
+		}
+	)
+	di.inject_on(&pp, 'db_pool')
 
-	app.use_db_pool(mut db_pool)
-	app.di.set(di.Service{ name: 'db_pool', instance: db_pool })
+	mut rp := vredis.new_pool(
+		dial: fn () !&vredis.Redis {
+			return vredis.new_client()!
+		}
+	)!
+	di.inject_on(rp, 'redis_manager')
 
-	app.register_on_interrupt(fn [mut db_pool] () ! {
-		db_pool.iter(fn (mut it sqlite.DB) {
-			it.close() or {}
-		})
-		db_pool.clear()
+	app.register_on_interrupt(fn [mut rp] () ! {
+		rp.close()
 	})
 
 	routers.register_router(mut app)

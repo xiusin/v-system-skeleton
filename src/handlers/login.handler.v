@@ -5,7 +5,10 @@ import dto
 import entities
 import services
 import time
-import db.sqlite
+import db.pg
+
+pub fn hello(mut ctx very.Context) ! {
+}
 
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
@@ -18,7 +21,13 @@ pub fn login(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	login_user := services.employee_auth(ctx.get_db[&sqlite.DB]()!, login_dto) or {
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
+
+	login_user := services.employee_auth(db, login_dto) or {
 		record.login_result = 1
 		record.remark = '${err}'
 		entities.Employee{}
@@ -28,7 +37,6 @@ pub fn login(mut ctx very.Context) ! {
 	record.user_name = login_user.actual_name
 	record.user_type = 1
 
-	db := ctx.get_db[&sqlite.DB]()!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
@@ -40,7 +48,7 @@ pub fn login(mut ctx very.Context) ! {
 	}
 
 	resp_dto := dto.new_login_response_dto[entities.Employee](login_user, menus)
-	resp_success[dto.LoginResponseDto](mut ctx,data: resp_dto)!
+	resp_success[dto.LoginResponseDto](mut ctx, data: resp_dto)!
 }
 
 pub fn logout(mut ctx very.Context) ! {
@@ -49,8 +57,12 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	login_user := services.employee_info(ctx.get_db[&sqlite.DB]()!, user_id, true)!
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
+	login_user := services.employee_info(db, user_id, true)!
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!

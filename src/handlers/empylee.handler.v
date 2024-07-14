@@ -6,7 +6,7 @@ import dto
 import time
 import crypto.md5
 import services
-import db.sqlite
+import db.pg
 
 pub fn employee_query(mut ctx very.Context) ! {
 	mut paginator := services.employee_query(mut ctx)!
@@ -18,9 +18,9 @@ pub fn employee_query(mut ctx very.Context) ! {
 	}
 	employee_ids << '-1'
 
-	sql := 'select employee_id, group_concat(role_id) as role_id_list, group_concat(role_name) as role_name_list from t_role_employee e join t_role r on e.role_id = r.id where employee_id in (${employee_ids.join(',')}) group by employee_id'
+	sql_ := "select employee_id, string_agg(role_id::varchar, ',') as role_id_list, string_agg(role_name, ',') as role_name_list from t_role_employee e join t_role r on e.role_id = r.id where employee_id in (${employee_ids.join(',')}) group by employee_id"
 	mut builder := entities.new_builder(false)
-	mut ralation := builder.query_raw[entities.EmployeeRoleRelation](mut ctx, sql)!
+	mut ralation := builder.query_raw[entities.EmployeeRoleRelation](mut ctx, sql_)!
 
 	mut employee_roles := map[int]entities.EmployeeRoleRelation{}
 	for it in ralation {
@@ -71,7 +71,11 @@ pub fn employee_query(mut ctx very.Context) ! {
 pub fn employee_reset_password(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
 	password := rand_str(8)
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	sql db {
 		update entities.Employee set login_pwd = md5.hexhash(password), update_time = time.now().custom_format(time_format)
 		where id == id
@@ -81,7 +85,11 @@ pub fn employee_reset_password(mut ctx very.Context) ! {
 
 pub fn employee_update_disabled(mut ctx very.Context) ! {
 	id := ctx.param('id').int()
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	employees := sql db {
 		select from entities.Employee where id == id limit 1
 	}!
@@ -102,9 +110,13 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 		return error('new password error')
 	}
 
-	login_user_id := ctx.value('user_id')! as int
+	login_user_id := ctx.value('user_id', 0)! as int
 
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	users := sql db {
 		select from entities.Employee where id == login_user_id limit 1
 	}!
@@ -122,7 +134,11 @@ pub fn employee_update_password(mut ctx very.Context) ! {
 }
 
 pub fn employee_query_all(mut ctx very.Context) ! {
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	employees := sql db {
 		select from entities.Employee
 	}!
@@ -131,10 +147,13 @@ pub fn employee_query_all(mut ctx very.Context) ! {
 
 pub fn employee_add(mut ctx very.Context) ! {
 	mut employee := ctx.body_parse[entities.Employee]()!
-	password := services.employee_add(ctx.get_db[&sqlite.DB]()!, mut employee)!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
+	password := services.employee_add(db, mut employee)!
 
-	// 查询新账号ID
-	db := ctx.get_db[&sqlite.DB]()!
 	employees := sql db {
 		select from entities.Employee where login_name == employee.login_name limit 1
 	}!
@@ -147,8 +166,14 @@ pub fn employee_add(mut ctx very.Context) ! {
 
 pub fn employee_delete(mut ctx very.Context) ! {
 	ids := ctx.body_parse[[]int]()!
+
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
+
 	for id in ids {
-		db := ctx.get_db[&sqlite.DB]()!
 		sql db {
 			delete from entities.Employee where id == id
 			delete from entities.RoleEmployee where employee_id == id
@@ -159,8 +184,13 @@ pub fn employee_delete(mut ctx very.Context) ! {
 
 pub fn employee_update_batch_department(mut ctx very.Context) ! {
 	query_dto := ctx.body_parse[dto.EmployeeBatchDepartmentDto]()!
+
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	for employee_id in query_dto.employee_id_list {
-		db := ctx.get_db[&sqlite.DB]()!
 		sql db {
 			update entities.Employee set department_id = query_dto.department_id, update_time = time.now().custom_format(time_format)
 			where id == employee_id
@@ -172,11 +202,15 @@ pub fn employee_update_batch_department(mut ctx very.Context) ! {
 pub fn employee_update(mut ctx very.Context) ! {
 	employee := ctx.body_parse[dto.EmployeeRespDto]()!
 
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	sql db {
 		update entities.Employee set actual_name = employee.actual_name, login_name = employee.login_name,
-		gender = employee.gender, disabled_flag = employee.disabled_flag, department_id = employee.department_id,
-		phone = employee.phone, update_time = time.now().custom_format(time_format) where id == employee.id
+		disabled_flag = '${employee.disabled_flag}'.int(), gender = employee.gender.str().int(),
+		department_id = employee.department_id, phone = employee.phone where id == employee.id
 	}!
 
 	// 更新角色
@@ -187,8 +221,6 @@ pub fn employee_update(mut ctx very.Context) ! {
 		relation := entities.RoleEmployee{
 			role_id: role_id
 			employee_id: employee.id
-			update_time: time.now().custom_format(time_format)
-			create_time: time.now().custom_format(time_format)
 		}
 		sql db {
 			insert relation into entities.RoleEmployee

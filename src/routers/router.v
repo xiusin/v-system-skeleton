@@ -5,11 +5,13 @@ import xiusin.very
 import middlewares
 
 pub fn register_router(mut app very.Application) {
-	app.use(middlewares.request_log, middlewares.access_log, middlewares.cors, middlewares.query,
-		middlewares.auth)
+	app.all('/', app.not_found_handler)
 
-	app.statics('/uploads', 'uploads')
-	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html')
+	// middlewares.response_cache, middlewares.access_log,
+	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
+
+	app.statics('/uploads', 'uploads') or {}
+	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html') or {}
 	app.post('/login', handlers.login)
 	app.get('/login/logout', handlers.logout)
 	app.get('/login/getLoginInfo', handlers.get_login_info)
@@ -47,6 +49,8 @@ pub fn register_router(mut app very.Application) {
 		menu_api.get('/tree', handlers.menu_tree)
 		menu_api.get('/batchDelete', handlers.menu_batch_delete)
 		menu_api.post('/add', handlers.menu_add)
+		menu_api.post('/update', handlers.menu_update)
+		menu_api.get('/auth/url', handlers.menu_auth_url)
 	}
 	mut employee_api := app.group('/employee')
 	{
@@ -91,8 +95,4 @@ pub fn register_router(mut app very.Application) {
 		support_api.post('/feedback/add', handlers.feedback_add)
 		support_api.post('/loginLog/page/query', handlers.login_log_page_query)
 	}
-	// mut oa_api := app.group('/oa')
-	// {
-	// 	oa_api.mount[oa.Notice]()
-	// }
 }

@@ -1,11 +1,15 @@
 module services
 
 import entities
-import db.sqlite
 import xiusin.very
+import db.pg
 
 pub fn get_department_map(mut ctx very.Context) !map[int]entities.Department {
-	db := ctx.get_db[&sqlite.DB]()!
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	departments := sql db {
 		select from entities.Department
 	}!

@@ -7,7 +7,7 @@ import crypto.sha256
 import config
 import json
 import services
-import db.sqlite
+import time
 
 pub fn auth(mut ctx very.Context) ! {
 	uri := ctx.req.path()
@@ -20,7 +20,7 @@ pub fn auth(mut ctx very.Context) ! {
 			return error('miss token')
 		}
 
-		if !auth_verify(token) {
+		if !auth_verify(token)! {
 			ctx.stop()
 			ctx.set_status(.forbidden)
 			return error('token无效')
@@ -33,30 +33,30 @@ pub fn auth(mut ctx very.Context) ! {
 			return error('token解析错误')
 		}
 
-		login_user_id := jwt_payload.sub.int()
-		user := services.employee_info(ctx.get_db[&sqlite.DB]()!, login_user_id) or {
+		if time.unix(jwt_payload.exp).unix() <= time.now().unix() {
 			ctx.set_status(.forbidden)
-			ctx.stop()
-			return error('用户不能存在')
+			return error('登录已过期， 请重新登录')
 		}
 
-		ctx.set('user_name', user.actual_name)
-		ctx.set('user_id', user.id)
+		login_user_id := jwt_payload.sub.int()
+		login_user_name := jwt_payload.name.str()
+
+		ctx.set('user_name', login_user_name)
+		ctx.set('user_id', login_user_id)
 		ctx.next()!
 		return
 	}
 	ctx.next()!
 }
 
-fn auth_verify(token string) bool {
+fn auth_verify(token string) !bool {
 	if token == '' {
 		return false
 	}
 	token_split := token.split('.')
-	signature_mirror := hmac.new(config.get_secret_key().bytes(), '${token_split[0]}.${token_split[1]}'.bytes(),
+	signature_mirror := hmac.new(config.config('secret_salt')!.bytes(), '${token_split[0]}.${token_split[1]}'.bytes(),
 		sha256.sum, sha256.block_size).bytestr().bytes()
 
 	signature_from_token := base64.url_decode(token_split[2])
-
 	return hmac.equal(signature_from_token, signature_mirror)
 }

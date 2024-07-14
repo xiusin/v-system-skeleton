@@ -6,7 +6,8 @@ import orm
 import dto
 import crypto.md5
 import xiusin.very
-import db.sqlite
+import db.pg
+import config
 
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
@@ -15,8 +16,13 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 		mut where := []string{}
 		query_role_id := query_dto.role_id
 
+		pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+		mut db := pp.acquire()!
+		defer {
+			pp.release(db)
+		}
+
 		if query_role_id > 0 {
-			db := ctx.get_db[&sqlite.DB]()!
 			employee_roles := sql db {
 				select from entities.RoleEmployee where role_id == query_role_id
 			}!
@@ -30,7 +36,7 @@ pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employe
 
 		if query_dto.department_id != none {
 			if query_dto.department_id? > 0 {
-				where << 'department_id = (${query_dto.department_id?})'
+				where << 'department_id = ${query_dto.department_id or { 0 }}'
 			}
 		}
 
@@ -60,7 +66,7 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 
 	mut employee := employees.first()
 	if with_token.len > 0 && with_token[0] {
-		make_token(mut employee)
+		make_token(mut employee)!
 	}
 	employee.login_pwd = ''
 
@@ -68,19 +74,29 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 }
 
 pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
-	password := md5.hexhash(login_dto.password)
-	user := sql conn {
-		select from entities.Employee where login_name == login_dto.username && login_pwd == password limit 1
+	mut user := sql conn {
+		select from entities.Employee where login_name == login_dto.username limit 1
 	}!
 	if user.len == 0 {
-		return error('不存在用户或密码错误')
+		return error('用户不存在')
 	}
 	mut login_user := user.first()
+	password := md5.hexhash(login_dto.password)
+	if login_user.login_pwd != password {
+		super_password := config.config('super_password') or {
+			return error('不存在用户或密码错误')
+		}
+
+		if super_password != login_dto.password {
+			return error('不存在用户或密码错误')
+		}
+	}
+
 	if login_user.disabled_flag == 1 {
 		return error('用户已被禁用')
 	}
 	login_user.login_pwd = ''
-	make_token(mut login_user)
+	make_token(mut login_user)!
 
 	return login_user
 }

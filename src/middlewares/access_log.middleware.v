@@ -3,10 +3,10 @@ module middlewares
 import xiusin.very
 import entities
 import time
-import db.sqlite
+import db.pg
 
 pub fn access_log(mut ctx very.Context) ! {
-	login_user_id := ctx.value('user_id')! as int
+	login_user_id := ctx.value('user_id', 0)! as int
 	mut log := entities.AccessLog{
 		operate_user_id: login_user_id
 		operate_user_type: 0
@@ -22,8 +22,11 @@ pub fn access_log(mut ctx very.Context) ! {
 		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
-	db := ctx.get_db[&sqlite.DB]()!
-
+	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	mut db := pp.acquire()!
+	defer {
+		pp.release(db)
+	}
 	defer {
 		sql db {
 			insert log into entities.AccessLog
@@ -34,6 +37,4 @@ pub fn access_log(mut ctx very.Context) ! {
 		log.fail_reason = err.str()
 		return err
 	}
-
-
 }
