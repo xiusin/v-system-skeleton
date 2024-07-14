@@ -7,8 +7,8 @@ import middlewares
 pub fn register_router(mut app very.Application) {
 	app.all('/', app.not_found_handler)
 
-	app.use(middlewares.request_log, middlewares.access_log, middlewares.response_cache,
-		middlewares.cors, middlewares.query, middlewares.auth)
+	// middlewares.response_cache, middlewares.access_log,
+	app.use(middlewares.request_log, middlewares.cors, middlewares.query, middlewares.auth)
 
 	app.statics('/uploads', 'uploads') or {}
 	app.statics('/manages', 'typescript-ant-design-vue3/dist/', 'index.html') or {}

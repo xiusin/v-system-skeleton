@@ -209,8 +209,8 @@ pub fn employee_update(mut ctx very.Context) ! {
 	}
 	sql db {
 		update entities.Employee set actual_name = employee.actual_name, login_name = employee.login_name,
-		gender = employee.gender, disabled_flag = employee.disabled_flag, department_id = employee.department_id,
-		phone = employee.phone, update_time = time.now().custom_format(time_format) where id == employee.id
+		disabled_flag = '${employee.disabled_flag}'.int(), gender = employee.gender.str().int(),
+		department_id = employee.department_id, phone = employee.phone where id == employee.id
 	}!
 
 	// 更新角色
@@ -221,8 +221,6 @@ pub fn employee_update(mut ctx very.Context) ! {
 		relation := entities.RoleEmployee{
 			role_id: role_id
 			employee_id: employee.id
-			update_time: time.now().custom_format(time_format)
-			create_time: time.now().custom_format(time_format)
 		}
 		sql db {
 			insert relation into entities.RoleEmployee

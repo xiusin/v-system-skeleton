@@ -17,7 +17,6 @@ fn main() {
 			return config.get_pg_db()!
 		}
 		release_failed_fn: fn (mut inst pg.DB) {
-			println('释放对象： ${ptr_str(inst)}')
 			inst.close()
 		}
 		loop_fn: fn (mut inst pg.DB) ! {

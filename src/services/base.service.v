@@ -20,7 +20,7 @@ pub struct JwtPayload {
 pub mut:
 	sub         string    // (subject) = Entity to whom the token belongs, usually the user ID;
 	iss         string    // (issuer) = Token issuer;
-	exp         string    // (expiration) = Timestamp of when the token will expire;
+	exp         i64       // (expiration) = Timestamp of when the token will expire;
 	iat         time.Time // (issued at) = Timestamp of when the token was created;
 	aud         string    // (audience) = Token recipient, represents the application that will use it.
 	name        string
@@ -56,17 +56,22 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 	return paginator
 }
 
-pub fn make_token(mut employee entities.Employee) {
+pub fn make_token(mut employee entities.Employee) ! {
 	jwt_header := JwtHeader{'HS256', 'JWT'}
-	jwt_payload := JwtPayload{
+	mut jwt_payload := JwtPayload{
 		sub: '${employee.id}'
 		name: '${employee.login_name}'
 		iat: time.now()
 	}
 
+	hours := (config.config('login_expires_hour') or { '0' }).i64()
+	if hours > 0 {
+		jwt_payload.exp = time.now().add(hours * time.hour).unix()
+	}
+
 	header := base64.url_encode(json.encode(jwt_header).bytes())
 	payload := base64.url_encode(json.encode(jwt_payload).bytes())
-	signature := base64.url_encode(hmac.new(config.get_secret_key().bytes(), '${header}.${payload}'.bytes(),
+	signature := base64.url_encode(hmac.new(config.config('secret_salt')!.bytes(), '${header}.${payload}'.bytes(),
 		sha256.sum, sha256.block_size).bytestr().bytes())
 
 	employee.token = '${header}.${payload}.${signature}'
