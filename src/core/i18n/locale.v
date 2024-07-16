@@ -9,9 +9,9 @@ mut:
 	messages map[string]string
 }
 
-[params]
+@[params]
 pub struct LocaleConfig {
-mut:
+pub mut:
 	fallback_locale string
 	lang            string
 	dir             string

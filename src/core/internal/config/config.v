@@ -6,22 +6,19 @@ import xiusin.very
 import entities
 import core.internal
 
-const db_config = 'vcms.db.config'
-
 pub fn get_pg_db() !pg.DB {
-	mut db := pg.connect(
+	return pg.connect(
 		host: '124.222.103.232'
 		port: 5432
 		user: 'postgres'
 		password: $env('DB_PASSWORD')
 		dbname: 'postgres'
 	)!
-	return db
 }
 
 pub fn config(key string, default_ ...string) !string {
-	mut m := &map[string]string{}
-	if !di.exists(config.db_config) {
+	mut stores := &map[string]string{}
+	if !di.exists(internal.service_db_config) {
 		pp := di.get[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 		mut db := pp.acquire()!
 		defer {
@@ -32,17 +29,17 @@ pub fn config(key string, default_ ...string) !string {
 		}!
 		for item in items {
 			unsafe {
-				m[item.config_key] = item.config_value
+				stores[item.config_key] = item.config_value
 			}
 		}
-		di.inject_on(m, config.db_config)
+		di.inject_on(m, internal.service_db_config)
 	} else {
-		m = di.get[map[string]string](config.db_config)!
+		stores = di.get[map[string]string](internal.service_db_config)!
 	}
 
-	if key in m {
+	if key in stores {
 		unsafe {
-			return m[key]
+			return stores[key]
 		}
 	}
 
