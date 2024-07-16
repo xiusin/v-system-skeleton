@@ -4,10 +4,10 @@ import xiusin.very
 import crypto.hmac
 import encoding.base64
 import crypto.sha256
-import config
 import json
 import services
 import time
+import core.internal.config
 
 pub fn auth(mut ctx very.Context) ! {
 	uri := ctx.req.path()

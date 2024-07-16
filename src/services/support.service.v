@@ -4,6 +4,7 @@ import entities
 import xiusin.very
 import dto
 import db.pg
+import core.internal
 
 pub fn support_config_query(mut ctx very.Context) !entities.Paginator[entities.Config] {
 	return base_query[entities.Config](mut ctx, fn [mut ctx] () ![]string {
@@ -93,7 +94,7 @@ pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities
 }
 
 pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

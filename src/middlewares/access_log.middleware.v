@@ -2,8 +2,8 @@ module middlewares
 
 import xiusin.very
 import entities
-import time
 import db.pg
+import core.internal
 
 pub fn access_log(mut ctx very.Context) ! {
 	login_user_id := ctx.value('user_id', 0)! as int
@@ -18,11 +18,9 @@ pub fn access_log(mut ctx very.Context) ! {
 		param: ''
 		user_agent: ctx.req.get_header(.user_agent)
 		success_flag: false
-		update_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
-		create_time: time.now().custom_format('YYYY-MM-DD HH:mm:ss')
 	}
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
