@@ -6,6 +6,7 @@ import entities
 import services
 import time
 import db.pg
+import core.internal
 
 pub fn hello(mut ctx very.Context) ! {
 }
@@ -21,7 +22,7 @@ pub fn login(mut ctx very.Context) ! {
 		create_time: time.now().custom_format(time_format)
 	}
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -57,7 +58,7 @@ pub fn logout(mut ctx very.Context) ! {
 
 pub fn get_login_info(mut ctx very.Context) ! {
 	user_id := ctx.value('user_id')! as int
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

@@ -5,9 +5,10 @@ import entities
 import dto
 import time
 import db.pg
+import core.internal
 
 pub fn role_get_all(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -29,7 +30,7 @@ pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
 		role_id: role_id
 	}
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -58,7 +59,7 @@ pub fn role_remove_employee(mut ctx very.Context) ! {
 	employee_id := ctx.req.query('employeeId').int()
 	role_id := ctx.req.query('roleId').int()
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -72,7 +73,7 @@ pub fn role_remove_employee(mut ctx very.Context) ! {
 pub fn role_batch_remove_employee(mut ctx very.Context) ! {
 	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -88,7 +89,7 @@ pub fn role_batch_remove_employee(mut ctx very.Context) ! {
 
 pub fn role_batch_add_employee(mut ctx very.Context) ! {
 	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -122,7 +123,7 @@ pub fn get_role_data_scope_list(mut ctx very.Context) ! {
 	}
 
 	// 获取选中菜单
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -147,7 +148,7 @@ pub fn update_role_menu(mut ctx very.Context) ! {
 	mut update_dto := ctx.body_parse[dto.UpdateRoleMenuDto]()!
 
 	// 删除之前所选
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -173,7 +174,7 @@ pub fn update_role_menu(mut ctx very.Context) ! {
 
 pub fn role_update(mut ctx very.Context) ! {
 	role := ctx.body_parse[entities.Role]()!
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -196,7 +197,7 @@ pub fn role_add(mut ctx very.Context) ! {
 	role.create_time = time.now().custom_format(time_format)
 	role.update_time = time.now().custom_format(time_format)
 
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -215,7 +216,7 @@ pub fn role_add(mut ctx very.Context) ! {
 
 pub fn role_delete(mut ctx very.Context) ! {
 	role_id := ctx.param('id').int()
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

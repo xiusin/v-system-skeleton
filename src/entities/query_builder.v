@@ -3,6 +3,7 @@ module entities
 import math
 import db.pg
 import xiusin.very
+import core.internal
 
 // TODO
 // - 支持对象类型自动解析
@@ -177,7 +178,7 @@ pub fn (mut info Builder) table(table string) &Builder {
 }
 
 pub fn (mut info Builder) query_raw[T](mut ctx very.Context, query string) ![]T {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -223,7 +224,7 @@ pub fn (mut info Builder) count(mut ctx very.Context, sql_ ...string) !u64 {
 	} else {
 		sql_[0]
 	}
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

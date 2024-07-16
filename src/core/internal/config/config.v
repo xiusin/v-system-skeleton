@@ -4,6 +4,7 @@ import db.pg
 import xiusin.very.di
 import xiusin.very
 import entities
+import core.internal
 
 const db_config = 'vcms.db.config'
 
@@ -21,7 +22,7 @@ pub fn get_pg_db() !pg.DB {
 pub fn config(key string, default_ ...string) !string {
 	mut m := &map[string]string{}
 	if !di.exists(config.db_config) {
-		pp := di.get[&very.PoolChannel[pg.DB]]('db_pool')!
+		pp := di.get[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 		mut db := pp.acquire()!
 		defer {
 			pp.release(db)

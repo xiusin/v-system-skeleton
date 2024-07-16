@@ -4,9 +4,10 @@ import xiusin.very
 import entities
 import time
 import db.pg
+import core.internal
 
 pub fn department_tree_list(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -20,7 +21,7 @@ pub fn department_tree_list(mut ctx very.Context) ! {
 }
 
 pub fn department_list_all(mut ctx very.Context) ! {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -34,7 +35,7 @@ pub fn department_list_all(mut ctx very.Context) ! {
 pub fn department_add(mut ctx very.Context) ! {
 	mut department := ctx.body_parse[entities.Department]()!
 	department.create_time = time.now().custom_format(time_format)
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
@@ -47,7 +48,7 @@ pub fn department_add(mut ctx very.Context) ! {
 
 pub fn department_update(mut ctx very.Context) ! {
 	department := ctx.body_parse[entities.Department]()!
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)

@@ -8,8 +8,9 @@ import crypto.hmac
 import encoding.base64
 import json
 import time
-import config
 import db.pg
+import core.internal
+import core.internal.config
 
 pub struct JwtHeader {
 	alg string
@@ -30,7 +31,7 @@ pub mut:
 
 // base_query Q 接收参数请求
 pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders ...string) !entities.Paginator[T] {
-	pp := ctx.di[&very.PoolChannel[pg.DB]]('db_pool')!
+	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
 		pp.release(db)
