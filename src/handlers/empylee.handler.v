@@ -2,7 +2,7 @@ module handlers
 
 import xiusin.very
 import entities
-import dto
+import services.dtos
 import time
 import crypto.md5
 import services
@@ -29,7 +29,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 	}
 	departments := services.get_department_map(mut ctx)!
 
-	mut employees := []dto.EmployeeRespDto{cap: items.len}
+	mut employees := []dtos.EmployeeRespDto{cap: items.len}
 	for item in items {
 		mut roles := []int{}
 		mut role_name := []string{}
@@ -40,7 +40,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 			role_name = employee_roles[item.id].role_name_list.split(',')
 		}
 
-		employees << dto.EmployeeRespDto{
+		employees << dtos.EmployeeRespDto{
 			id: item.id
 			login_name: item.login_name
 			actual_name: item.actual_name
@@ -57,7 +57,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 		}
 	}
 
-	resp_paginator := entities.Paginator[dto.EmployeeRespDto]{
+	resp_paginator := entities.Paginator[dtos.EmployeeRespDto]{
 		empty: employees.len == 0
 		total: paginator.total
 		current_page: paginator.current_page
@@ -66,7 +66,7 @@ pub fn employee_query(mut ctx very.Context) ! {
 		items: employees
 	}
 
-	resp_success[entities.Paginator[dto.EmployeeRespDto]](mut ctx, data: resp_paginator)!
+	resp_success[entities.Paginator[dtos.EmployeeRespDto]](mut ctx, data: resp_paginator)!
 }
 
 pub fn employee_reset_password(mut ctx very.Context) ! {
@@ -106,7 +106,7 @@ pub fn employee_update_disabled(mut ctx very.Context) ! {
 }
 
 pub fn employee_update_password(mut ctx very.Context) ! {
-	update_password := ctx.body_parse[dto.EmployeeUpdatePasswordDto]()!
+	update_password := ctx.body_parse[dtos.EmployeeUpdatePasswordDto]()!
 	if update_password.confirm_pwd != update_password.new_password {
 		return error('new password error')
 	}
@@ -184,7 +184,7 @@ pub fn employee_delete(mut ctx very.Context) ! {
 }
 
 pub fn employee_update_batch_department(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.EmployeeBatchDepartmentDto]()!
+	query_dto := ctx.body_parse[dtos.EmployeeBatchDepartmentDto]()!
 
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
@@ -201,7 +201,7 @@ pub fn employee_update_batch_department(mut ctx very.Context) ! {
 }
 
 pub fn employee_update(mut ctx very.Context) ! {
-	employee := ctx.body_parse[dto.EmployeeRespDto]()!
+	employee := ctx.body_parse[dtos.EmployeeRespDto]()!
 
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!

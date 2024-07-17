@@ -2,7 +2,7 @@ module handlers
 
 import xiusin.very
 import entities
-import dto
+import services.dtos
 import time
 import db.pg
 import core.internal
@@ -26,7 +26,7 @@ pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
 		return error('no role')
 	}
 
-	mut resp_dto := dto.RoleResponseDto{
+	mut resp_dto := dtos.RoleResponseDto{
 		role_id: role_id
 	}
 
@@ -48,7 +48,7 @@ pub fn role_get_role_selected_menu(mut ctx very.Context) ! {
 		select from entities.Menu
 	}!, 0)
 
-	resp_success[dto.RoleResponseDto](mut ctx, data: resp_dto)!
+	resp_success[dtos.RoleResponseDto](mut ctx, data: resp_dto)!
 }
 
 pub fn role_query_employee(mut ctx very.Context) ! {
@@ -71,7 +71,7 @@ pub fn role_remove_employee(mut ctx very.Context) ! {
 }
 
 pub fn role_batch_remove_employee(mut ctx very.Context) ! {
-	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
+	mut batch_dto := ctx.body_parse[dtos.BatchRoleEmployeeDto]()!
 
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
@@ -88,7 +88,7 @@ pub fn role_batch_remove_employee(mut ctx very.Context) ! {
 }
 
 pub fn role_batch_add_employee(mut ctx very.Context) ! {
-	mut batch_dto := ctx.body_parse[dto.BatchRoleEmployeeDto]()!
+	mut batch_dto := ctx.body_parse[dtos.BatchRoleEmployeeDto]()!
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
@@ -118,7 +118,7 @@ pub fn get_role_data_scope_list(mut ctx very.Context) ! {
 		return error('no role')
 	}
 
-	mut resp_dto := dto.RoleResponseDto{
+	mut resp_dto := dtos.RoleResponseDto{
 		role_id: role_id
 	}
 
@@ -141,11 +141,11 @@ pub fn get_role_data_scope_list(mut ctx very.Context) ! {
 		select from entities.Menu
 	}!, 0)
 
-	resp_success[dto.RoleResponseDto](mut ctx, data: resp_dto)!
+	resp_success[dtos.RoleResponseDto](mut ctx, data: resp_dto)!
 }
 
 pub fn update_role_menu(mut ctx very.Context) ! {
-	mut update_dto := ctx.body_parse[dto.UpdateRoleMenuDto]()!
+	mut update_dto := ctx.body_parse[dtos.UpdateRoleMenuDto]()!
 
 	// 删除之前所选
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!

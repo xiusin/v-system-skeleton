@@ -32,7 +32,7 @@ pub fn config(key string, default_ ...string) !string {
 				stores[item.config_key] = item.config_value
 			}
 		}
-		di.inject_on(m, internal.service_db_config)
+		di.inject_on(stores, internal.service_db_config)
 	} else {
 		stores = di.get[map[string]string](internal.service_db_config)!
 	}

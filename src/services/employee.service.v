@@ -3,7 +3,7 @@ module services
 import time
 import entities
 import orm
-import dto
+import services.dtos
 import crypto.md5
 import xiusin.very
 import db.pg
@@ -12,7 +12,7 @@ import core.internal.config
 
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
+		query_dto := ctx.body_parse[dtos.EmployeeQueryDto]()!
 
 		mut where := []string{}
 		query_role_id := query_dto.role_id
@@ -74,7 +74,7 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 	return employee
 }
 
-pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
+pub fn employee_auth(conn orm.Connection, login_dto dtos.LoginRequestDto) !entities.Employee {
 	mut user := sql conn {
 		select from entities.Employee where login_name == login_dto.username limit 1
 	}!

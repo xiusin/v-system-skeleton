@@ -1,7 +1,7 @@
 module handlers
 
 import xiusin.very
-import dto
+import services.dtos
 import entities
 import services
 import time
@@ -12,7 +12,7 @@ pub fn hello(mut ctx very.Context) ! {
 }
 
 pub fn login(mut ctx very.Context) ! {
-	login_dto := ctx.body_parse[dto.LoginRequestDto]()!
+	login_dto := ctx.body_parse[dtos.LoginRequestDto]()!
 	mut record := entities.LoginLog{
 		login_ip: ctx.req.client_ip()
 		user_agent: ctx.req.get_header(.user_agent)
@@ -48,8 +48,8 @@ pub fn login(mut ctx very.Context) ! {
 		return error(record.remark)
 	}
 
-	resp_dto := dto.new_login_response_dto[entities.Employee](login_user, menus)
-	resp_success[dto.LoginResponseDto](mut ctx, data: resp_dto)!
+	resp_dto := dtos.new_login_response_dto[entities.Employee](login_user, menus)
+	resp_success[dtos.LoginResponseDto](mut ctx, data: resp_dto)!
 }
 
 pub fn logout(mut ctx very.Context) ! {
@@ -67,7 +67,7 @@ pub fn get_login_info(mut ctx very.Context) ! {
 	menus := sql db {
 		select from entities.Menu where visible_flag == 1 order by sort
 	}!
-	resp_success[dto.LoginResponseDto](mut ctx,
-		data: dto.new_login_response_dto[entities.Employee](login_user, menus)
+	resp_success[dtos.LoginResponseDto](mut ctx,
+		data: dtos.new_login_response_dto[entities.Employee](login_user, menus)
 	)!
 }

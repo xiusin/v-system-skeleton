@@ -53,8 +53,8 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 	}
 	count := builder.count(mut ctx)!
 	users := db.exec(builder.to_sql())!
-	paginator := builder.get_page[T](int(count), page_num, page_num, users)!
-	return paginator
+	pagination := builder.get_page[T](int(count), page_num, page_num, users)!
+	return pagination
 }
 
 pub fn make_token(mut employee entities.Employee) ! {

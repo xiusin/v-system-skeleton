@@ -1,4 +1,4 @@
-module dto
+module dtos
 
 pub struct EmployeeQueryDto {
 pub mut:
