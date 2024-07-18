@@ -3,14 +3,9 @@ module services
 import entities
 import xiusin.very
 import math
-import crypto.sha256
-import crypto.hmac
-import encoding.base64
-import json
 import time
 import db.pg
 import core.internal
-import core.internal.config
 
 pub struct JwtHeader {
 	alg string
@@ -55,25 +50,4 @@ pub fn base_query[T](mut ctx very.Context, build_where fn () ![]string, orders .
 	users := db.exec(builder.to_sql())!
 	pagination := builder.get_page[T](int(count), page_num, page_num, users)!
 	return pagination
-}
-
-pub fn make_token(mut employee entities.Employee) ! {
-	jwt_header := JwtHeader{'HS256', 'JWT'}
-	mut jwt_payload := JwtPayload{
-		sub: '${employee.id}'
-		name: '${employee.login_name}'
-		iat: time.now()
-	}
-
-	hours := (config.config('login_expires_hour') or { '0' }).i64()
-	if hours > 0 {
-		jwt_payload.exp = time.now().add(hours * time.hour).unix()
-	}
-
-	header := base64.url_encode(json.encode(jwt_header).bytes())
-	payload := base64.url_encode(json.encode(jwt_payload).bytes())
-	signature := base64.url_encode(hmac.new(config.config('secret_salt')!.bytes(), '${header}.${payload}'.bytes(),
-		sha256.sum, sha256.block_size).bytestr().bytes())
-
-	employee.token = '${header}.${payload}.${signature}'
 }
