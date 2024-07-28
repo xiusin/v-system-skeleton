@@ -2,13 +2,13 @@ module services
 
 import entities
 import xiusin.very
-import dto
 import db.pg
 import core.internal
+import services.dtos
 
 pub fn support_config_query(mut ctx very.Context) !entities.Paginator[entities.Config] {
 	return base_query[entities.Config](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.ConfigDto]()!
+		query_dto := ctx.body_parse[dtos.ConfigDto]()!
 		mut where := []string{}
 		if query_dto.config_key.len > 0 {
 			where << "config_key LIKE '%${query_dto.config_key}%'"
@@ -19,7 +19,7 @@ pub fn support_config_query(mut ctx very.Context) !entities.Paginator[entities.C
 
 pub fn support_change_log_query(mut ctx very.Context) !entities.Paginator[entities.ChangeLog] {
 	return base_query[entities.ChangeLog](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.ChangeLogDto]()!
+		query_dto := ctx.body_parse[dtos.ChangeLogDto]()!
 		mut where := []string{}
 
 		if query_dto.@type > 0 {
@@ -41,7 +41,7 @@ pub fn support_change_log_query(mut ctx very.Context) !entities.Paginator[entiti
 
 pub fn support_login_log_query(mut ctx very.Context) !entities.Paginator[entities.LoginLog] {
 	return base_query[entities.LoginLog](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.LoginLogDto]()!
+		query_dto := ctx.body_parse[dtos.LoginLogDto]()!
 		mut where := []string{}
 		if query_dto.start_date.len > 0 {
 			where << '(create_time >= "${query_dto.start_date}" AND create_time <= "${query_dto.end_date} 23:59:59")'
@@ -59,7 +59,7 @@ pub fn support_login_log_query(mut ctx very.Context) !entities.Paginator[entitie
 
 pub fn support_feedback_query(mut ctx very.Context) !entities.Paginator[entities.Feedback] {
 	return base_query[entities.Feedback](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.FeedbackDto]()!
+		query_dto := ctx.body_parse[dtos.FeedbackDto]()!
 		mut where := []string{}
 		if query_dto.search_word.len > 0 {
 			where << 'feedback_content like "%${query_dto.search_word}%"'
@@ -73,7 +73,7 @@ pub fn support_feedback_query(mut ctx very.Context) !entities.Paginator[entities
 
 pub fn support_dict_value_query(mut ctx very.Context) !entities.Paginator[entities.DictValue] {
 	return base_query[entities.DictValue](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.DictDto]()!
+		query_dto := ctx.body_parse[dtos.DictDto]()!
 		mut where := []string{}
 		if query_dto.dict_key_id > 0 {
 			where << 'id = ${query_dto.dict_key_id}'
@@ -85,7 +85,7 @@ pub fn support_dict_value_query(mut ctx very.Context) !entities.Paginator[entiti
 pub fn support_dict_key_query(mut ctx very.Context) !entities.Paginator[entities.DictKey] {
 	return base_query[entities.DictKey](mut ctx, fn [mut ctx] () ![]string {
 		mut where := []string{}
-		query_dto := ctx.body_parse[dto.DictDto]()!
+		query_dto := ctx.body_parse[dtos.DictDto]()!
 		if query_dto.search_word.len > 0 {
 			where << "key_code like '%${query_dto.search_word}%' or key_name like '%${query_dto.search_word}%'"
 		}
@@ -107,7 +107,7 @@ pub fn support_dict_key_all(mut ctx very.Context) ![]entities.DictKey {
 pub fn support_file_query(mut ctx very.Context) !entities.Paginator[entities.File] {
 	return base_query[entities.File](mut ctx, fn [mut ctx] () ![]string {
 		mut where := []string{}
-		query_dto := ctx.body_parse[dto.FileDto]()!
+		query_dto := ctx.body_parse[dtos.FileDto]()!
 		if query_dto.file_key.len > 0 {
 			where << "file_key like '%${query_dto.file_key}%'"
 		}

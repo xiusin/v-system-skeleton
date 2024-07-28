@@ -1,8 +1,13 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
+    "folders": [
+        {
+            "path": "."
+        }
     ],
+    "extensions": {
+        "recommendations": [
+            "VOSCA.vscode-v-analyzer",
+        ]
+    },
     "settings": {}
 }

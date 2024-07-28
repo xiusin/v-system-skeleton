@@ -1,4 +1,4 @@
-module dto
+module dtos
 
 pub struct NoticeRequestDto {
 pub mut:

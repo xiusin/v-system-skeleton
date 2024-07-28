@@ -3,16 +3,20 @@ module services
 import time
 import entities
 import orm
-import dto
+import services.dtos
 import crypto.md5
 import xiusin.very
 import db.pg
 import core.internal
 import core.internal.config
+import crypto.sha256
+import crypto.hmac
+import encoding.base64
+import json
 
 pub fn employee_query(mut ctx very.Context) !entities.Paginator[entities.Employee] {
 	return base_query[entities.Employee](mut ctx, fn [mut ctx] () ![]string {
-		query_dto := ctx.body_parse[dto.EmployeeQueryDto]()!
+		query_dto := ctx.body_parse[dtos.EmployeeQueryDto]()!
 
 		mut where := []string{}
 		query_role_id := query_dto.role_id
@@ -74,7 +78,7 @@ pub fn employee_info(conn orm.Connection, login_id int, with_token ...bool) !ent
 	return employee
 }
 
-pub fn employee_auth(conn orm.Connection, login_dto dto.LoginRequestDto) !entities.Employee {
+pub fn employee_auth(conn orm.Connection, login_dto dtos.LoginRequestDto) !entities.Employee {
 	mut user := sql conn {
 		select from entities.Employee where login_name == login_dto.username limit 1
 	}!
@@ -113,12 +117,31 @@ pub fn employee_add(conn orm.Connection, mut employee entities.Employee) !string
 	}
 
 	employee.login_pwd = md5.hexhash('123456')
-	employee.update_time = time.now().custom_format('YYYY-MM-DD HH:mm:ss')
-	employee.create_time = employee.update_time
 
 	sql conn {
 		insert employee into entities.Employee
 	}!
 
 	return '123456'
+}
+
+pub fn make_token(mut employee entities.Employee) ! {
+	jwt_header := JwtHeader{'HS256', 'JWT'}
+	mut jwt_payload := JwtPayload{
+		sub: '${employee.id}'
+		name: '${employee.login_name}'
+		iat: time.now()
+	}
+
+	hours := (config.config('login_expires_hour') or { '0' }).i64()
+	if hours > 0 {
+		jwt_payload.exp = time.now().add(hours * time.hour).unix()
+	}
+
+	header := base64.url_encode(json.encode(jwt_header).bytes())
+	payload := base64.url_encode(json.encode(jwt_payload).bytes())
+	signature := base64.url_encode(hmac.new(config.config('secret_salt')!.bytes(), '${header}.${payload}'.bytes(),
+		sha256.sum, sha256.block_size).bytestr().bytes())
+
+	employee.token = '${header}.${payload}.${signature}'
 }

@@ -2,7 +2,7 @@ module handlers
 
 import xiusin.very
 import entities
-import dto
+import services.dtos
 import time
 import os
 import json
@@ -243,18 +243,18 @@ pub fn table_column_get(mut ctx very.Context) ! {
 		select from entities.TableColumn where table_id == table_id limit 1
 	}!
 
-	mut column := dto.TableColumnGetColumnsResponseDto{}
+	mut column := dtos.TableColumnGetColumnsResponseDto{}
 
 	if tables.len > 0 {
 		column.table_id = tables.first().table_id
-		column.columns = json.decode([]dto.TableColumnItem, tables.first().columns)!
+		column.columns = json.decode([]dtos.TableColumnItem, tables.first().columns)!
 		column.id = tables.first().id
 	}
-	resp_success[dto.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
+	resp_success[dtos.TableColumnGetColumnsResponseDto](mut ctx, data: column)!
 }
 
 pub fn table_column_update(mut ctx very.Context) ! {
-	table_column_dto := ctx.body_parse[dto.TableColumnDto]()!
+	table_column_dto := ctx.body_parse[dtos.TableColumnDto]()!
 	pp := ctx.di[&very.PoolChannel[pg.DB]](internal.service_db_pool)!
 	mut db := pp.acquire()!
 	defer {
@@ -292,7 +292,7 @@ pub fn feedback_query(mut ctx very.Context) ! {
 }
 
 pub fn feedback_add(mut ctx very.Context) ! {
-	mut feedback_dto := ctx.body_parse[dto.FeedbackAddDto]()!
+	mut feedback_dto := ctx.body_parse[dtos.FeedbackAddDto]()!
 	mut feedback := entities.Feedback{
 		create_time: time.now().custom_format(time_format)
 		update_time: time.now().custom_format(time_format)
@@ -408,7 +408,7 @@ pub fn help_doc_catalog_get_all(mut ctx very.Context) ! {
 
 // code_generator_query_table_list
 pub fn code_generator_query_table_list(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.CodeGeneratorTableListDto]()!
+	query_dto := ctx.body_parse[dtos.CodeGeneratorTableListDto]()!
 	offset := query_dto.page_size * (query_dto.page_num - 1)
 	sql_ := 'select * from pg_tables offset ${offset} limit ${query_dto.page_size}'
 	count_sql := 'select count(*) AS total from pg_tables'
@@ -473,11 +473,11 @@ pub fn code_generator_table_get_config(mut ctx very.Context) ! {
 	}
 	cfg := cfg_arr.first()
 
-	response := dto.CodeGeneratorConfigDto{
+	response := dtos.CodeGeneratorConfigDto{
 		id: cfg.id
 		table_name: cfg.table_name
-		basic: json.decode(dto.CodeGeneratorConfigBasic, cfg.basic) or {
-			dto.CodeGeneratorConfigBasic{
+		basic: json.decode(dtos.CodeGeneratorConfigBasic, cfg.basic) or {
+			dtos.CodeGeneratorConfigBasic{
 				backend_author: 'xiusin'
 				backend_date: time.now().custom_format(time_format)
 				copyright: 'copyright@xiusin'
@@ -488,30 +488,30 @@ pub fn code_generator_table_get_config(mut ctx very.Context) ! {
 				module_name: ''
 			}
 		}
-		fields: json.decode([]dto.CodeGeneratorConfigFields, cfg.fields) or {
-			[]dto.CodeGeneratorConfigFields{}
+		fields: json.decode([]dtos.CodeGeneratorConfigFields, cfg.fields) or {
+			[]dtos.CodeGeneratorConfigFields{}
 		}
-		insert_and_update: json.decode(dto.CodeGeneratorConfigInsertAndUpdate, cfg.insert_and_update) or {
-			dto.CodeGeneratorConfigInsertAndUpdate{}
+		insert_and_update: json.decode(dtos.CodeGeneratorConfigInsertAndUpdate, cfg.insert_and_update) or {
+			dtos.CodeGeneratorConfigInsertAndUpdate{}
 		}
-		delete_info: json.decode(dto.CodeGeneratorConfigDeleteInfo, cfg.delete_info) or {
-			dto.CodeGeneratorConfigDeleteInfo{}
+		delete_info: json.decode(dtos.CodeGeneratorConfigDeleteInfo, cfg.delete_info) or {
+			dtos.CodeGeneratorConfigDeleteInfo{}
 		}
-		query_fields: json.decode([]dto.CodeGeneratorConfigQueryFields, cfg.query_fields) or {
-			[]dto.CodeGeneratorConfigQueryFields{}
+		query_fields: json.decode([]dtos.CodeGeneratorConfigQueryFields, cfg.query_fields) or {
+			[]dtos.CodeGeneratorConfigQueryFields{}
 		}
-		table_fields: json.decode([]dto.CodeGeneratorConfigTableFields, cfg.table_fields) or {
-			[]dto.CodeGeneratorConfigTableFields{}
+		table_fields: json.decode([]dtos.CodeGeneratorConfigTableFields, cfg.table_fields) or {
+			[]dtos.CodeGeneratorConfigTableFields{}
 		}
 		update_time: cfg.update_time
 		create_time: cfg.create_time
 	}
 
-	resp_success[dto.CodeGeneratorConfigDto](mut ctx, data: response)!
+	resp_success[dtos.CodeGeneratorConfigDto](mut ctx, data: response)!
 }
 
 pub fn code_generator_table_update_config(mut ctx very.Context) ! {
-	query_dto := ctx.body_parse[dto.CodeGeneratorConfigDto]()!
+	query_dto := ctx.body_parse[dtos.CodeGeneratorConfigDto]()!
 
 	cfg := entities.CodeGeneratorConfig{
 		table_name: query_dto.table_name
@@ -539,7 +539,7 @@ pub fn code_generator_table_update_config(mut ctx very.Context) ! {
 }
 
 pub fn code_generator_code_preview(mut ctx very.Context) ! {
-	_ = ctx.body_parse[dto.CodePreviewDto]()!
+	_ = ctx.body_parse[dtos.CodePreviewDto]()!
 
 	resp_success[string](mut ctx, data: '')!
 }
