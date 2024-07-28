@@ -8,9 +8,6 @@ import time
 import db.pg
 import core.internal
 
-pub fn hello(mut ctx very.Context) ! {
-}
-
 pub fn login(mut ctx very.Context) ! {
 	login_dto := ctx.body_parse[dtos.LoginRequestDto]()!
 	mut record := entities.LoginLog{

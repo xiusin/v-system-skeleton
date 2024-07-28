@@ -222,6 +222,8 @@ pub fn employee_update(mut ctx very.Context) ! {
 		relation := entities.RoleEmployee{
 			role_id: role_id
 			employee_id: employee.id
+			update_time: time.now().custom_format(time_format)
+            create_time: time.now().custom_format(time_format)
 		}
 		sql db {
 			insert relation into entities.RoleEmployee
